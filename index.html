@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cosy Coloring Moments — Jom Mewarna!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900;1000&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            candy: {
+              pink: '#FF4F9A',
+              hotpink: '#FF2D87',
+              coral: '#FF7167',
+              yellow: '#FFD93D',
+              orange: '#FF9F43',
+              turquoise: '#32D6CC',
+              skyblue: '#55B8FF',
+              lavender: '#A98BFF',
+              mint: '#7DE7AD',
+              cream: '#FFF9F0',
+              plum: '#493451',
+              softplum: '#765882',
+              cardbg: '#FFFFFF',
+              sand: '#F7EDDE'
+            }
+          },
+          fontFamily: {
+            display: ['Nunito', 'Quicksand', 'sans-serif'],
+            body: ['Quicksand', 'Nunito', 'sans-serif']
+          },
+          boxShadow: {
+            'chibi': '0 8px 0px rgba(73, 52, 81, 0.16)',
+            'chibi-hover': '0 10px 0px rgba(73, 52, 81, 0.20)',
+            'chibi-active': '0 2px 0px rgba(73, 52, 81, 0.16)',
+            'chibi-sm': '0 4px 0px rgba(73, 52, 81, 0.13)',
+            'card-glow': '0 12px 32px -4px rgba(255, 79, 154, 0.22), 0 8px 18px -2px rgba(85, 184, 255, 0.18)',
+            'inner-soft': 'inset 0 2px 6px rgba(73, 52, 81, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-landscape: url('https://imglink.cc/cdn/3YJ3MLZ3Yv.jpeg');
+      --bg-portrait: url('https://imglink.cc/cdn/XrkS9ExF7_.jpeg');
+    }
+
+    body {
+      background-color: #FFF9F0;
+      color: #493451;
+      font-family: 'Nunito', 'Quicksand', sans-serif;
+      overscroll-behavior: none;
+    }
+
+    .app-background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-color: #FFF9F0;
+      will-change: background-image;
+    }
+
+    @media (orientation: landscape) {
+      .app-background {
+        background-image: var(--bg-landscape);
+      }
+    }
+
+    @media (orientation: portrait) {
+      .app-background {
+        background-image: var(--bg-portrait);
+      }
+    }
+
+    .app-background::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 249, 240, 0.45), rgba(255, 242, 248, 0.40));
+      backdrop-filter: blur(1.5px);
+      -webkit-backdrop-filter: blur(1.5px);
+    }
+
+    .candy-btn {
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease;
+      cursor: pointer;
+    }
+    .candy-btn:active {
+      transform: translateY(3px) !important;
+      box-shadow: 0 1px 0px rgba(73, 52, 81, 0.15) !important;
+    }
+
+    @keyframes chibi-bob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(-1.5deg); }
+    }
+    .anim-chibi-bob {
+      animation: chibi-bob 3.2s ease-in-out infinite;
+    }
+
+    @keyframes sparkle-twinkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+      50% { transform: scale(1.22) rotate(18deg); opacity: 1; }
+    }
+    .anim-sparkle {
+      animation: sparkle-twinkle 2.2s ease-in-out infinite;
+    }
+
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .anim-float {
+      animation: float-gentle 2.6s ease-in-out infinite;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Chunky Candy Color Bricks (Top Palette) */
+    .chunky-swatch {
+      width: 38px;
+      height: 42px;
+      border-radius: 12px;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 4px 0px rgba(0, 0, 0, 0.14), 0 5px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .chunky-swatch:active {
+      transform: translateY(2px) !important;
+      box-shadow: 0 1px 0px rgba(0, 0, 0, 0.18) !important;
+    }
+
+    .chunky-swatch.active-swatch {
+      transform: translateY(-2px) scale(1.08);
+      box-shadow: 0 6px 0px rgba(73, 52, 81, 0.25), 0 0 0 2.5px #493451 !important;
+    }
+
+    .chunky-swatch-highlight {
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      right: 4px;
+      height: 38%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.05) 100%);
+      border-radius: 8px 8px 5px 5px;
+      pointer-events: none;
+    }
+
+    .card-gloss-highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%);
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* ========================================================
+       TACTILE STATIONERY POUCH DOCK (BIG, SOLID, ZERO MOVEMENT/ZOOM)
+       ======================================================== */
+    .stationery-pouch-dock {
+      height: 138px !important;
+      max-height: 138px !important;
+      min-height: 138px !important;
+      position: relative;
+      background: #F5DEC9;
+      box-shadow: 0 -8px 24px rgba(73, 52, 81, 0.15);
+      overflow: visible !important;
+      border-top: 3.5px solid #E4B892;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+    }
+
+    /* Pouch Interior Backing Wall */
+    .pouch-back-wall {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #E9CBB2 0%, #DFB798 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Tools Track: Perfectly fit across the screen with ZERO scrolling or jitter */
+    .pouch-tools-track {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 0 4px 4px 4px;
+      overflow: visible !important;
+      touch-action: none !important;
+    }
+
+    /* Individual Tool Button: Fixed solid position, smooth slight lift on active */
+    .pouch-tool-item {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 126px;
+      padding: 0;
+      flex: 1;
+      max-width: 68px;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      transform: translateY(0);
+      transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+
+    /* Active Tool State: Rises slightly up from the pouch, NO borders, NO scale */
+    .pouch-tool-item.active-tool {
+      transform: translateY(-16px) !important;
+      z-index: 5;
+    }
+
+    /* Tool Rotation Container for Horizontal Assets - BIGGER & CLEARER */
+    .tool-box-rotated {
+      width: 64px;
+      height: 102px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      z-index: 1;
+    }
+
+    /* Rotated 90 degrees to stand tall and upright, MUCH LARGER */
+    .tool-img-rotated {
+      width: 102px !important;
+      height: 64px !important;
+      max-width: 102px !important;
+      max-height: 64px !important;
+      object-fit: contain !important;
+      transform: rotate(90deg) !important;
+      transform-origin: center center !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+    }
+
+    /* Naturally Upright Tool (Paint Bucket) - BIGGER & CLEARER */
+    .tool-box-upright {
+      width: 64px;
+      height: 102px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .tool-img-upright {
+      width: 62px !important;
+      height: 80px !important;
+      max-width: 62px !important;
+      max-height: 80px !important;
+      object-fit: contain !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+    }
+
+    /* FRONT POUCH SLEEVE LIP */
+    .pouch-front-lip {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 38px;
+      z-index: 3;
+      pointer-events: none;
+      background: linear-gradient(180deg, #F99A4A 0%, #EB7C24 100%);
+      border-top: 3.5px solid #FFBE7D;
+      box-shadow: inset 0 3px 5px rgba(255,255,255,0.45), 0 -4px 10px rgba(184, 87, 14, 0.25);
+      border-radius: 18px 18px 0 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3px 12px;
+    }
+
+    /* Subtle Plaid / Checked Texture on Pouch Front */
+    .pouch-plaid-texture {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0.18;
+      background-image: 
+        repeating-linear-gradient(0deg, #5B2700, #5B2700 3px, transparent 3px, transparent 18px),
+        repeating-linear-gradient(90deg, #5B2700, #5B2700 3px, transparent 3px, transparent 24px);
+      pointer-events: none;
+    }
+
+    /* Stitched Rivets Bar on Pouch Rim */
+    .pouch-stitch-rivets {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      padding-top: 1px;
+    }
+
+    .pouch-rivet-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FFE2BF;
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.6);
+    }
+  </style>
+</head>
+<body class="flex flex-col h-full w-full antialiased text-candy-plum relative">
+
+  <!-- Responsive Background Art Layer -->
+  <div id="dynamic-bg-layer" class="app-background" aria-hidden="true"></div>
+
+  <!-- Main Header -->
+  <header class="flex-shrink-0 w-full bg-white/95 backdrop-blur-md border-b-3 border-candy-sand px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-sm z-40 relative">
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      
+      <!-- Home Button -->
+      <button id="btn-nav-home" class="candy-btn bg-candy-yellow hover:bg-[#ffe160] text-candy-plum border-2 border-candy-plum/15 px-3 py-1.5 rounded-2xl flex items-center gap-1.5 font-black text-xs sm:text-sm shadow-chibi-sm" aria-label="Utama">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 drop-shadow-xs" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4L4 20H10V42C10 43.1 10.9 44 12 44H36C37.1 44 38 43.1 38 42V20H44L24 4Z" fill="url(#grad_home_roof)"/>
+          <path d="M12 20V42H36V20H12Z" fill="url(#grad_home_wall)"/>
+          <rect x="18" y="26" width="12" height="18" rx="3" fill="#FF7167"/>
+          <circle cx="27" cy="35" r="1.5" fill="#FFD93D"/>
+          <circle cx="24" cy="14" r="3.5" fill="#FFF" opacity="0.9"/>
+          <defs>
+            <linearGradient id="grad_home_roof" x1="24" y1="4" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF5B8C"/>
+              <stop offset="1" stop-color="#FF2D87"/>
+            </linearGradient>
+            <linearGradient id="grad_home_wall" x1="24" y1="20" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFFDF7"/>
+              <stop offset="1" stop-color="#FCEFD8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span data-i18n="nav_home" class="hidden xs:inline">Utama</span>
+      </button>
+
+      <!-- App Mascot & Title -->
+      <div class="flex items-center gap-2 cursor-pointer" id="logo-branding-btn">
+        <div class="w-10 h-10 bg-gradient-to-tr from-candy-pink via-candy-yellow to-candy-turquoise rounded-2xl p-0.5 shadow-md border-2 border-white flex items-center justify-center flex-shrink-0 anim-chibi-bob">
+          <svg viewBox="0 0 48 48" class="w-full h-full" fill="none">
+            <circle cx="24" cy="24" r="22" fill="#FFF2E8"/>
+            <path d="M7 21C7 10 17 6 27 7C37 8 41 15 39 23C28 23 16 24 7 21Z" fill="#A98BFF"/>
+            <circle cx="27" cy="6" r="4" fill="#FFD93D"/>
+            <circle cx="26" cy="5" r="1.5" fill="#FFFFFF"/>
+            <ellipse cx="17" cy="26" rx="3.2" ry="4.2" fill="#493451"/>
+            <ellipse cx="31" cy="26" rx="3.2" ry="4.2" fill="#493451"/>
+            <circle cx="15.8" cy="24.5" r="1.5" fill="#FFFFFF"/>
+            <circle cx="29.8" cy="24.5" r="1.5" fill="#FFFFFF"/>
+            <ellipse cx="13" cy="29" rx="3.5" ry="1.8" fill="#FF7167" opacity="0.6"/>
+            <ellipse cx="35" cy="29" rx="3.5" ry="1.8" fill="#FF7167" opacity="0.6"/>
+            <path d="M21 31C22.5 33 25.5 33 27 31" stroke="#493451" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display font-black text-sm sm:text-lg tracking-tight text-candy-plum leading-none">
+            Cosy Coloring Moments
+          </span>
+          <span class="text-[9px] sm:text-[11px] font-extrabold text-candy-hotpink tracking-wide" data-i18n="app_subtag">
+            Jom Warnakan Dunia Kita!
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio FX & Language Selector -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <button id="btn-audio-toggle" class="candy-btn w-9 h-9 bg-candy-cream hover:bg-white text-candy-plum border-2 border-candy-sand rounded-xl flex items-center justify-center shadow-chibi-sm" aria-label="Bunyi" title="Bunyi / Sound">
+        <svg id="svg-audio-on" class="w-4 h-4 sm:w-5 sm:h-5 text-candy-plum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#FFD93D"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        <svg id="svg-audio-off" class="w-4 h-4 sm:w-5 sm:h-5 text-candy-plum hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <line x1="23" y1="9" x2="17" y2="15"/>
+          <line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      </button>
+
+      <div class="bg-candy-sand/80 p-0.5 rounded-xl flex items-center border-2 border-candy-plum/10 shadow-inner">
+        <button id="lang-bm" class="candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-candy-hotpink text-white shadow-xs">
+          BM
+        </button>
+        <button id="lang-en" class="candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all text-candy-softplum hover:text-candy-plum">
+          English
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 min-h-0 w-full relative flex flex-col overflow-hidden z-10">
+
+    <!-- SCREEN 1: FRONT PAGE (HERO + ALL 8 THEME CARDS) -->
+    <div id="screen-home" class="flex-1 min-h-0 overflow-y-auto no-scrollbar p-3 sm:p-5 lg:p-6 flex flex-col items-center max-w-7xl mx-auto w-full">
+      
+      <!-- HERO BANNER -->
+      <div class="w-full bg-gradient-to-br from-[#FFF0F6] via-[#FFF9EE] to-[#F0FAFF] border-3 border-candy-pink/30 rounded-3xl p-4 sm:p-6 shadow-card-glow mb-6 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden flex-shrink-0">
+        
+        <div class="z-10 text-center md:text-left space-y-3 max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 text-candy-hotpink text-[11px] font-black uppercase border border-candy-pink/30 shadow-xs">
+            <svg class="w-3.5 h-3.5 anim-sparkle" viewBox="0 0 24 24" fill="none">
+              <path d="M12 0L14.9 9.1L24 12L14.9 14.9L12 24L9.1 14.9L0 12L9.1 9.1L12 0Z" fill="url(#sparkle_grad)"/>
+              <defs>
+                <linearGradient id="sparkle_grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FFD93D"/>
+                  <stop offset="1" stop-color="#FF2D87"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span data-i18n="tagline">Pengalaman Mewarna Ajaib & Comel</span>
+          </div>
+
+          <h1 class="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-candy-plum tracking-tight leading-tight">
+            <span data-i18n="hero_title_part1">Jom Mewarna!</span><br>
+            <span class="text-candy-hotpink" data-i18n="hero_title_part2">Pilih Tema & Warnakan Dunia Anda</span>
+          </h1>
+
+          <p class="text-candy-softplum font-bold text-xs sm:text-sm leading-relaxed" data-i18n="hero_desc">
+            Tekan mana-mana tema comel di bawah untuk membuka pilihan gambar lakaran. Semua gambar mengekalkan bentuk asal tanpa kembang atau herot!
+          </p>
+
+          <div class="pt-1 flex flex-wrap items-center justify-center md:justify-start gap-3">
+            <button id="btn-quick-start" class="candy-btn bg-candy-hotpink hover:bg-[#e81f75] text-white font-black px-6 py-3 rounded-2xl shadow-chibi border-2 border-candy-plum/15 flex items-center gap-2.5 text-sm sm:text-base">
+              <svg class="w-5 h-5 drop-shadow-sm anim-float" viewBox="0 0 32 32" fill="none">
+                <path d="M16 2L20.3 11.7L31 13.1L23.1 20.3L25.2 30.8L16 25.5L6.8 30.8L8.9 20.3L1 13.1L11.7 11.7L16 2Z" fill="url(#star_gold)"/>
+                <circle cx="13" cy="13" r="1.5" fill="#493451"/>
+                <circle cx="19" cy="13" r="1.5" fill="#493451"/>
+                <path d="M14 17C15 18 17 18 18 17" stroke="#493451" stroke-width="1.5" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="star_gold" x1="16" y1="2" x2="16" y2="30.8" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFE769"/>
+                    <stop offset="1" stop-color="#FFA800"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span data-i18n="btn_start_coloring">Jom Mewarna Sekarang!</span>
+            </button>
+
+            <button id="btn-goto-collection" class="candy-btn bg-white hover:bg-candy-cream text-candy-plum font-black px-4 py-3 rounded-2xl border-2 border-candy-sand shadow-chibi-sm flex items-center gap-2 text-xs sm:text-sm">
+              <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 32 32" fill="none">
+                <rect x="3" y="3" width="26" height="26" rx="6" fill="#F7D89C" stroke="#D1893D" stroke-width="2"/>
+                <rect x="6" y="6" width="20" height="20" rx="4" fill="#FFFFFF"/>
+                <circle cx="12" cy="12" r="3" fill="#FF7167"/>
+                <path d="M7 23L13 17L19 22L21 20L25 24V25C25 25.6 24.6 26 24 26H8C7.4 26 7 25.6 7 25V23Z" fill="#32D6CC"/>
+              </svg>
+              <span data-i18n="btn_my_collection">Koleksi Saya</span>
+              <span id="saved-count-badge" class="ml-1 bg-candy-turquoise text-candy-plum text-xs px-2 py-0.5 rounded-full font-black border border-candy-plum/20">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chibi Mascot Hero Artwork -->
+        <div class="w-48 h-44 sm:w-56 sm:h-52 relative flex-shrink-0 flex items-center justify-center anim-chibi-bob">
+          <svg viewBox="0 0 280 260" class="w-full h-full drop-shadow-xl" fill="none">
+            <path d="M30 220 C40 120, 110 65, 220 70" stroke="#FF7167" stroke-width="12" stroke-linecap="round" opacity="0.85"/>
+            <path d="M36 226 C46 132, 116 82, 214 86" stroke="#FFD93D" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+            <path d="M42 232 C52 144, 122 98, 208 102" stroke="#32D6CC" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+            
+            <ellipse cx="140" cy="135" rx="52" ry="48" fill="url(#mascot_skin)"/>
+            <circle cx="118" cy="136" r="10" fill="#2E1C38"/>
+            <circle cx="115" cy="132" r="4" fill="#FFFFFF"/>
+            <circle cx="121" cy="139" r="1.8" fill="#FFFFFF"/>
+            <circle cx="162" cy="136" r="10" fill="#2E1C38"/>
+            <circle cx="159" cy="132" r="4" fill="#FFFFFF"/>
+            <circle cx="165" cy="139" r="1.8" fill="#FFFFFF"/>
+            <ellipse cx="106" cy="148" rx="8" ry="4.5" fill="#FF617E" opacity="0.55"/>
+            <ellipse cx="174" cy="148" rx="8" ry="4.5" fill="#FF617E" opacity="0.55"/>
+            <path d="M130 148 Q140 160 150 148" stroke="#493451" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <path d="M133 150 Q140 158 147 150 Z" fill="#FF2D87"/>
+            <path d="M88 110 C84 65 145 52 186 70 C206 79 204 102 192 112 C160 98 116 96 88 110 Z" fill="url(#mascot_beret)"/>
+            <circle cx="188" cy="68" r="7" fill="#FFD93D"/>
+            <path d="M185 180 L235 125" stroke="#D1893D" stroke-width="8" stroke-linecap="round"/>
+            <path d="M235 125 L252 105 C255 102 258 107 254 112 L242 128 Z" fill="#32D6CC"/>
+            <circle cx="190" cy="175" r="9" fill="#FFF2E8" stroke="#493451" stroke-width="2"/>
+            <circle cx="65" cy="80" r="4" fill="#FFD93D"/>
+            <circle cx="230" cy="50" r="5" fill="#FF4F9A"/>
+            <defs>
+              <linearGradient id="mascot_skin" x1="140" y1="87" x2="140" y2="183" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FFF8F2"/>
+                <stop offset="1" stop-color="#FFE1CE"/>
+              </linearGradient>
+              <linearGradient id="mascot_beret" x1="88" y1="60" x2="192" y2="112" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#C0A8FF"/>
+                <stop offset="1" stop-color="#8352FF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <!-- SECTION: ALL 8 THEMES GRID -->
+      <div class="w-full mb-6">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 drop-shadow-xs" viewBox="0 0 36 36" fill="none">
+              <path d="M18 3C9.7 3 3 9.7 3 18C3 26.3 9.7 33 18 33C20.5 33 22.5 31 22.5 28.5C22.5 27.3 22 26.3 21.2 25.5C20.5 24.7 20 23.7 20 22.5C20 20 22 18 24.5 18H28.5C31 18 33 16 33 13.5C33 7.7 26.3 3 18 3Z" fill="url(#grad_palette_wood)"/>
+              <circle cx="9" cy="14" r="2.5" fill="#FF4F9A"/>
+              <circle cx="15" cy="9" r="2.5" fill="#FFD93D"/>
+              <circle cx="23" cy="10" r="2.5" fill="#32D6CC"/>
+              <circle cx="28" cy="14.5" r="2.5" fill="#A98BFF"/>
+              <ellipse cx="14" cy="25" rx="3.5" ry="4.5" fill="#5A3A20" opacity="0.3"/>
+              <defs>
+                <linearGradient id="grad_palette_wood" x1="3" y1="3" x2="33" y2="33" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FFE4BD"/>
+                  <stop offset="1" stop-color="#DEB079"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <h2 class="font-display font-black text-xl sm:text-2xl text-candy-plum" data-i18n="theme_section_title">
+              Pilih Tema Kegemaran
+            </h2>
+          </div>
+          <span class="text-xs font-black text-candy-hotpink bg-white/90 px-3.5 py-1.5 rounded-full border-2 border-candy-pink/20 shadow-xs" data-i18n="all_themes_count">
+            8 Tema • 40 Halaman
+          </span>
+        </div>
+
+        <div id="frontpage-themes-grid" class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <footer class="w-full py-5 mt-auto flex items-center justify-center text-xs font-black text-candy-softplum/80 border-t border-candy-sand/80 z-10">
+        <span>Kinder Klub | All Rights Reserved</span>
+      </footer>
+    </div>
+
+    <!-- SCREEN 2: SPECIFIC THEME GALLERY (5 PICTURES) -->
+    <div id="screen-theme-pages" class="hidden flex-1 min-h-0 overflow-y-auto no-scrollbar p-3 sm:p-5 lg:p-6 flex flex-col items-center max-w-7xl mx-auto w-full">
+      
+      <div class="w-full bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 border-3 border-candy-sand shadow-card-glow mb-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3.5 w-full sm:w-auto">
+          <button id="btn-back-to-themes" class="candy-btn bg-candy-yellow hover:bg-[#ffe160] text-candy-plum font-black px-3.5 py-2 rounded-2xl border-2 border-candy-plum/15 text-xs sm:text-sm shadow-chibi-sm flex items-center gap-1.5 flex-shrink-0">
+            <svg class="w-4 h-4 text-candy-plum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span data-i18n="btn_back_themes">Semua Tema</span>
+          </button>
+
+          <div class="flex items-center gap-3 min-w-0">
+            <div id="theme-hero-icon-container" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FFF0F6] to-[#FFF9EE] border-2 border-candy-sand p-1 shadow-inner flex items-center justify-center flex-shrink-0">
+            </div>
+            <div class="truncate">
+              <h2 id="theme-hero-title" class="font-display font-black text-lg sm:text-2xl text-candy-plum truncate">
+                Tema
+              </h2>
+              <p class="text-xs font-bold text-candy-softplum" data-i18n="theme_page_prompt">
+                Tekan mana-mana gambar untuk terus mewarna!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <span class="text-xs font-black text-candy-hotpink bg-candy-pink/15 px-3 py-1.5 rounded-full border border-candy-pink/20">
+            5 Gambar Lakaran
+          </span>
+        </div>
+      </div>
+
+      <div id="theme-pages-grid" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 pb-12">
+      </div>
+
+      <footer class="w-full py-4 mt-auto flex items-center justify-center text-xs font-black text-candy-softplum/80 border-t border-candy-sand/80 z-10">
+        <span>Kinder Klub | All Rights Reserved</span>
+      </footer>
+    </div>
+
+    <!-- SCREEN 3: MY COLLECTION -->
+    <div id="screen-collection" class="hidden flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 sm:p-6 flex flex-col items-center max-w-7xl mx-auto w-full">
+      <div class="w-full flex items-center justify-between mb-5 border-b-2 border-candy-sand pb-3">
+        <div>
+          <h2 class="font-display font-black text-xl sm:text-2xl text-candy-plum flex items-center gap-2.5">
+            <svg class="w-7 h-7 drop-shadow-xs anim-float" viewBox="0 0 36 36" fill="none">
+              <rect x="4" y="4" width="28" height="28" rx="6" fill="#FCE9C8" stroke="#D1893D" stroke-width="2"/>
+              <rect x="7" y="7" width="22" height="22" rx="4" fill="#FFFFFF"/>
+              <circle cx="14" cy="14" r="3.5" fill="#FF4F9A"/>
+              <path d="M8 24L15 17L22 23L24 21L28 25V26C28 26.6 27.6 27 27 27H9C8.4 27 8 26.6 8 26V24Z" fill="#32D6CC"/>
+            </svg>
+            <span data-i18n="my_collection_title">Koleksi Lukisan Saya</span>
+          </h2>
+          <p class="text-xs text-candy-softplum font-bold mt-0.5" data-i18n="my_collection_subtitle">
+            Karya seni yang telah anda warnakan disimpan di sini. Anda boleh teruskan mewarna pada bila-bila masa!
+          </p>
+        </div>
+        <button id="btn-back-from-collection" class="candy-btn bg-candy-yellow hover:bg-[#ffe160] text-candy-plum font-black px-3.5 py-1.5 rounded-xl border-2 border-candy-plum/15 text-xs sm:text-sm shadow-chibi-sm flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span data-i18n="btn_back">Kembali</span>
+        </button>
+      </div>
+
+      <div id="collection-grid" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      </div>
+
+      <div id="collection-empty" class="hidden flex-col items-center justify-center py-12 text-center space-y-3">
+        <div class="w-32 h-32 relative anim-chibi-bob">
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-md" fill="none">
+            <circle cx="80" cy="80" r="75" fill="#FFF2F8" stroke="#FF4F9A" stroke-width="3" stroke-dasharray="6 6"/>
+            <polygon points="50,135 80,45 84,45 114,135" fill="#D4A373" stroke="#493451" stroke-width="3"/>
+            <rect x="52" y="60" width="60" height="50" rx="6" fill="#FFFFFF" stroke="#493451" stroke-width="3"/>
+            <circle cx="82" cy="85" r="14" fill="#FFE8E8" stroke="#FF7167" stroke-width="2"/>
+            <circle cx="77" cy="83" r="2.5" fill="#493451"/>
+            <circle cx="87" cy="83" r="2.5" fill="#493451"/>
+            <path d="M79 88Q82 91 85 88" stroke="#493451" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="font-display font-black text-lg text-candy-plum" data-i18n="empty_collection_heading">
+          Belum ada lukisan yang disimpan!
+        </h3>
+        <p class="text-xs font-bold text-candy-softplum max-w-xs" data-i18n="empty_collection_msg">
+          Pilih mana-mana tema comel dan tekan butang Simpan apabila siap mewarna!
+        </p>
+        <button id="btn-empty-start" class="candy-btn bg-candy-hotpink text-white font-black px-6 py-2.5 rounded-2xl shadow-chibi text-xs sm:text-sm border-2 border-candy-plum/15">
+          <span data-i18n="btn_start_coloring">Jom Mula Mewarna!</span>
+        </button>
+      </div>
+
+      <footer class="w-full py-4 mt-auto flex items-center justify-center text-xs font-black text-candy-softplum/80 border-t border-candy-sand/80 z-10">
+        <span>Kinder Klub | All Rights Reserved</span>
+      </footer>
+    </div>
+
+    <!-- SCREEN 4: COLORING STUDIO WORKSPACE -->
+    <div id="screen-workspace" class="hidden flex-1 min-h-0 w-full h-full flex flex-col relative overflow-hidden bg-gradient-to-b from-[#FFF5F8] to-[#FFF9F0]">
+      
+      <!-- Top Workspace Bar -->
+      <div class="flex-shrink-0 w-full bg-white/95 backdrop-blur-md border-b border-candy-sand px-2.5 sm:px-4 py-1.5 flex items-center justify-between z-20 shadow-xs gap-2">
+        <div class="flex items-center space-x-2 min-w-0">
+          <button id="btn-workspace-back" class="candy-btn bg-candy-yellow hover:bg-[#ffe160] text-candy-plum px-2.5 py-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-1 border-2 border-candy-plum/15 shadow-chibi-sm flex-shrink-0">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span data-i18n="btn_back" class="hidden xs:inline">Kembali</span>
+          </button>
+          <div class="truncate">
+            <h3 id="workspace-art-title" class="font-display font-black text-xs sm:text-sm text-candy-plum truncate">
+              Gambar
+            </h3>
+            <span id="workspace-art-theme" class="text-[9px] sm:text-[10px] text-candy-hotpink font-extrabold block truncate">
+              Tema
+            </span>
+          </div>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="flex items-center bg-candy-sand/80 border border-candy-plum/15 rounded-xl p-0.5 shadow-inner gap-0.5">
+          <button id="btn-zoom-out" class="candy-btn w-7 h-7 bg-white hover:bg-candy-cream text-candy-plum rounded-lg font-black text-sm flex items-center justify-center shadow-xs border border-candy-sand" title="Zum Keluar">
+            −
+          </button>
+          <span id="zoom-indicator" class="text-[11px] font-black px-1 text-candy-plum min-w-[38px] text-center">
+            100%
+          </span>
+          <button id="btn-zoom-in" class="candy-btn w-7 h-7 bg-white hover:bg-candy-cream text-candy-plum rounded-lg font-black text-sm flex items-center justify-center shadow-xs border border-candy-sand" title="Zum Masuk">
+            +
+          </button>
+          <button id="btn-zoom-reset" class="candy-btn px-2 h-7 bg-candy-cream hover:bg-white text-candy-hotpink rounded-lg font-black text-[10px] flex items-center justify-center border border-candy-hotpink/20" title="Asal">
+            <span data-i18n="btn_reset_zoom">Asal</span>
+          </button>
+        </div>
+
+        <!-- Actions: Undo, Redo, Clear, Save, Export PDF -->
+        <div class="flex items-center space-x-1 flex-shrink-0">
+          <button id="btn-undo" class="candy-btn p-1.5 sm:px-2 rounded-xl bg-white hover:bg-candy-cream border border-candy-sand text-candy-plum text-xs font-black flex items-center gap-1 disabled:opacity-40 shadow-xs" title="Undur">
+            <svg class="w-3.5 h-3.5 text-candy-skyblue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/>
+            </svg>
+            <span data-i18n="btn_undo" class="hidden md:inline">Undur</span>
+          </button>
+
+          <button id="btn-redo" class="candy-btn p-1.5 sm:px-2 rounded-xl bg-white hover:bg-candy-cream border border-candy-sand text-candy-plum text-xs font-black flex items-center gap-1 disabled:opacity-40 shadow-xs" title="Buat Semula">
+            <svg class="w-3.5 h-3.5 text-candy-skyblue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/>
+            </svg>
+            <span data-i18n="btn_redo" class="hidden md:inline">Buat Semula</span>
+          </button>
+
+          <button id="btn-clear-canvas" class="candy-btn p-1.5 sm:px-2 rounded-xl bg-[#FFE8EE] hover:bg-candy-pink/30 border border-candy-pink/30 text-candy-hotpink text-xs font-black flex items-center gap-1 shadow-xs" title="Padam Warna">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span data-i18n="btn_clear" class="hidden lg:inline">Padam</span>
+          </button>
+
+          <button id="btn-save-artwork" class="candy-btn px-2.5 py-1.5 rounded-xl bg-candy-mint hover:bg-[#6bd69d] border border-candy-plum/15 text-candy-plum text-xs font-black flex items-center gap-1 shadow-chibi-sm">
+            <svg class="w-3.5 h-3.5 text-candy-plum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            <span data-i18n="btn_save">Simpan</span>
+          </button>
+
+          <button id="btn-export-png" class="candy-btn p-1.5 sm:px-2.5 py-1.5 rounded-xl bg-candy-turquoise hover:bg-[#2bc4ba] border border-candy-plum/15 text-candy-plum text-xs font-black flex items-center gap-1 shadow-chibi-sm" title="Eksport PDF">
+            <svg class="w-3.5 h-3.5 text-candy-plum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span data-i18n="btn_export" class="hidden sm:inline">PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TOP: CHUNKY CANDY COLOR PALETTE DOCK (ABOVE CANVAS) -->
+      <div class="flex-shrink-0 w-full bg-white/95 backdrop-blur-md border-b-2 border-candy-sand px-2 py-1.5 flex items-center gap-2 overflow-x-auto no-scrollbar z-20 shadow-xs select-none">
+        
+        <!-- Custom Color Picker -->
+        <div class="relative flex-shrink-0">
+          <div id="active-color-swatch" class="chunky-swatch flex items-center justify-center bg-gradient-to-tr from-pink-400 via-yellow-300 to-sky-400 border-2 border-white shadow-md" title="Pilih Sebarang Warna">
+            <svg class="w-5 h-5 text-white drop-shadow-md anim-sparkle" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0L14.9 9.1L24 12L14.9 14.9L12 24L9.1 14.9L0 12L9.1 9.1L12 0Z"/>
+            </svg>
+            <div class="chunky-swatch-highlight"></div>
+          </div>
+          <input type="color" id="custom-color-picker" value="#FF2D87" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" aria-label="Warna Tersuai">
+        </div>
+
+        <div class="h-7 w-[2px] bg-candy-sand/90 rounded-full flex-shrink-0 mx-0.5"></div>
+
+        <!-- Color Swatches Bar -->
+        <div id="palette-swatches" class="flex items-center gap-1.5 flex-nowrap pr-2">
+        </div>
+      </div>
+
+      <!-- Canvas Viewport (Maximised Area) -->
+      <div id="canvas-viewport" class="flex-1 min-h-0 w-full relative flex items-center justify-center overflow-hidden select-none bg-[#F7F2EC]">
+        
+        <div id="canvas-loading-spinner" class="absolute inset-0 bg-white/70 backdrop-blur-xs z-30 flex flex-col items-center justify-center hidden pointer-events-none">
+          <div class="w-10 h-10 border-4 border-candy-hotpink border-t-transparent rounded-full animate-spin"></div>
+          <span class="mt-2 text-xs font-black text-candy-plum" data-i18n="loading_art">Memuatkan Gambar...</span>
+        </div>
+
+        <div id="gesture-hint-pill" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-candy-plum/85 text-white backdrop-blur-sm px-3.5 py-1 rounded-full text-[11px] font-black pointer-events-none z-10 transition-opacity duration-500 opacity-90 flex items-center gap-1.5 shadow-md border border-white/20">
+          <svg class="w-4 h-4 text-candy-yellow" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C13.1 2 14 2.9 14 4V11.2C14.7 10.7 15.6 10.4 16.5 10.4C18.4 10.4 20 12 20 13.9V18C20 20.2 18.2 22 16 22H11C8.2 22 6 19.8 6 17V11C6 9.9 6.9 9 8 9C8.4 9 8.8 9.1 9.1 9.3C9.4 8.5 10.1 8 11 8C11.3 8 11.7 8.1 12 8.3V4C12 2.9 12.9 2 12 2Z"/>
+          </svg>
+          <span data-i18n="gesture_hint">Picit untuk zum • 2 jari untuk gerak gambar</span>
+        </div>
+
+        <!-- Canvas Stage -->
+        <div id="canvas-stage" class="relative shadow-xl rounded-2xl overflow-hidden bg-white border-3 border-candy-sand" style="transform-origin: 0 0;">
+          <canvas id="color-canvas" width="1200" height="1500" class="absolute top-0 left-0 w-full h-full z-10 block"></canvas>
+          <canvas id="line-art-canvas" width="1200" height="1500" class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none block" style="mix-blend-mode: multiply;"></canvas>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           BOTTOM: TACTILE STATIONERY POUCH DOCK (NO SCROLL, BIG, UPRIGHT)
+           ======================================================== -->
+      <div class="stationery-pouch-dock flex-shrink-0 w-full flex items-end justify-between px-1 pb-1 z-30 relative select-none">
+        
+        <!-- Pouch Interior Backing Wall -->
+        <div class="pouch-back-wall"></div>
+
+        <!-- Nib Size Selector: Floats neatly above the right corner of pouch -->
+        <div class="absolute -top-11 right-2 z-30 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-2xl border-2 border-candy-orange/40 shadow-chibi-sm">
+          <button data-size="10" class="size-btn candy-btn w-6 h-6 rounded-lg flex items-center justify-center hover:bg-candy-cream text-candy-plum transition-all" title="Kecil">
+            <div class="w-1.5 h-1.5 rounded-full bg-candy-plum"></div>
+          </button>
+          <button data-size="24" class="size-btn candy-btn active-size w-6 h-6 rounded-lg bg-candy-pink/20 shadow-xs border border-candy-hotpink/30 flex items-center justify-center text-candy-plum transition-all" title="Sederhana">
+            <div class="w-2.5 h-2.5 rounded-full bg-candy-hotpink"></div>
+          </button>
+          <button data-size="45" class="size-btn candy-btn w-6 h-6 rounded-lg flex items-center justify-center hover:bg-candy-cream text-candy-plum transition-all" title="Besar">
+            <div class="w-3.5 h-3.5 rounded-full bg-candy-plum"></div>
+          </button>
+          <button data-size="75" class="size-btn candy-btn w-6 h-6 rounded-lg flex items-center justify-center hover:bg-candy-cream text-candy-plum transition-all" title="Sangat Besar">
+            <div class="w-4.5 h-4.5 rounded-full bg-candy-plum"></div>
+          </button>
+        </div>
+
+        <!-- Tools Track: Fixed width, evenly distributed, NO HORIZONTAL SCROLLING -->
+        <div class="pouch-tools-track flex-1">
+          
+          <!-- 1. Paint Brush (Berus) -->
+          <button data-tool="brush" class="pouch-tool-item active-tool focus:outline-none" title="Berus Lukisan">
+            <div class="tool-box-rotated">
+              <img src="https://imglink.cc/cdn/Qd4AN2H3Ge.png" alt="Berus" class="tool-img-rotated">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_brush">Berus</span>
+          </button>
+
+          <!-- 2. Marker (Marker) -->
+          <button data-tool="marker" class="pouch-tool-item focus:outline-none" title="Pen Marker">
+            <div class="tool-box-rotated">
+              <img src="https://imglink.cc/cdn/2QfeuwvOPR.png" alt="Marker" class="tool-img-rotated">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_marker">Marker</span>
+          </button>
+
+          <!-- 3. Crayon (Krayon) -->
+          <button data-tool="crayon" class="pouch-tool-item focus:outline-none" title="Krayon Lilin">
+            <div class="tool-box-rotated">
+              <img src="https://imglink.cc/cdn/bgo2zr0fRR.png" alt="Krayon" class="tool-img-rotated">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_crayon">Krayon</span>
+          </button>
+
+          <!-- 4. Colour Pencil (Pensel) -->
+          <button data-tool="pencil" class="pouch-tool-item focus:outline-none" title="Pensel Warna">
+            <div class="tool-box-rotated">
+              <img src="https://imglink.cc/cdn/9paWlRVi6N.png" alt="Pensel" class="tool-img-rotated">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_pencil">Pensel</span>
+          </button>
+
+          <!-- 5. Paint Bucket (Tong Cat) -->
+          <button data-tool="fill" class="pouch-tool-item focus:outline-none" title="Tong Isi Warna">
+            <div class="tool-box-upright">
+              <img src="https://imglink.cc/cdn/h0i13C-22U.png" alt="Tong Cat" class="tool-img-upright">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_fill">Isi</span>
+          </button>
+
+          <!-- 6. Eraser (Pemadam) -->
+          <button data-tool="eraser" class="pouch-tool-item focus:outline-none" title="Pemadam">
+            <div class="tool-box-rotated">
+              <img src="https://imglink.cc/cdn/w556q7afvq.png" alt="Pemadam" class="tool-img-rotated">
+            </div>
+            <span class="text-[10px] sm:text-xs font-black text-white drop-shadow-sm leading-none mb-1 tracking-tight z-10" data-i18n="tool_eraser">Pemadam</span>
+          </button>
+        </div>
+
+        <!-- FRONT POUCH SLEEVE LIP (Covers the lower half like a real pencil case pocket) -->
+        <div class="pouch-front-lip">
+          <div class="pouch-plaid-texture"></div>
+          <div class="pouch-stitch-rivets">
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+            <div class="pouch-rivet-dot"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Confirmation & Dialog Modal -->
+  <div id="modal-container" class="fixed inset-0 bg-candy-plum/45 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="modal-card" class="bg-white rounded-3xl p-5 max-w-sm w-full shadow-card-glow border-3 border-candy-pink/40 transform transition-all scale-95 opacity-0 text-center space-y-3">
+      <div id="modal-icon-container" class="w-16 h-16 mx-auto rounded-2xl bg-[#FFF0F6] border-2 border-candy-pink/30 flex items-center justify-center shadow-inner">
+        <svg viewBox="0 0 64 64" class="w-12 h-12" fill="none">
+          <circle cx="32" cy="32" r="28" fill="#FFF2E8"/>
+          <path d="M12 28C12 16 26 10 38 12C49 14 54 22 51 31C38 31 24 32 12 28Z" fill="#A98BFF"/>
+          <circle cx="38" cy="11" r="4.5" fill="#FFD93D"/>
+          <circle cx="23" cy="34" r="3.5" fill="#493451"/>
+          <circle cx="41" cy="34" r="3.5" fill="#493451"/>
+          <circle cx="21.5" cy="32.5" r="1.5" fill="#FFFFFF"/>
+          <circle cx="39.5" cy="32.5" r="1.5" fill="#FFFFFF"/>
+          <ellipse cx="18" cy="39" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="46" cy="39" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <path d="M28 41Q32 44 36 41" stroke="#493451" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h3 id="modal-title" class="font-display font-black text-lg text-candy-plum">
+        Pengesahan
+      </h3>
+      <p id="modal-message" class="text-xs sm:text-sm text-candy-softplum leading-relaxed font-bold">
+        Adakah anda pasti?
+      </p>
+      
+      <div id="modal-actions" class="flex items-center justify-center gap-2.5 pt-1">
+        <button id="modal-btn-cancel" class="candy-btn flex-1 py-2.5 px-3 rounded-xl bg-candy-sand/70 hover:bg-candy-sand text-candy-plum font-black text-xs sm:text-sm border border-candy-plum/10 shadow-chibi-sm">
+          Batal
+        </button>
+        <button id="modal-btn-confirm" class="candy-btn flex-1 py-2.5 px-3 rounded-xl bg-candy-hotpink hover:bg-[#e81f75] text-white font-black text-xs sm:text-sm shadow-chibi border border-candy-plum/15">
+          Ya, Teruskan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export & Save Artwork Modal for Mobile & Webview -->
+  <div id="export-preview-modal" class="fixed inset-0 bg-candy-plum/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-4 sm:p-5 max-w-sm w-full shadow-card-glow border-3 border-candy-turquoise/50 text-center space-y-3 flex flex-col items-center">
+      <div class="flex items-center justify-between w-full border-b border-candy-sand pb-2">
+        <h3 class="font-display font-black text-base text-candy-plum" data-i18n="export_modal_title">Simpan Lukisan (PDF)</h3>
+        <button id="btn-close-export-modal" class="candy-btn w-7 h-7 bg-candy-cream hover:bg-candy-sand rounded-full flex items-center justify-center text-candy-plum font-black text-sm">✕</button>
+      </div>
+      <div class="w-full max-h-[50vh] rounded-2xl overflow-hidden border-2 border-candy-sand bg-[#FDFBF7] flex items-center justify-center p-2">
+        <img id="export-preview-img" src="" alt="Artwork" class="max-w-full max-h-full object-contain rounded-xl shadow-xs">
+      </div>
+      <p class="text-xs text-candy-softplum font-bold leading-relaxed px-1" data-i18n="export_modal_hint">
+        Tekan &amp; tahan gambar di atas, atau tekan butang di bawah untuk muat turun dokumen PDF.
+      </p>
+      <div class="flex items-center gap-2 w-full pt-1">
+        <button id="btn-export-direct-dl" class="candy-btn flex-1 py-2.5 px-3 rounded-xl bg-candy-turquoise hover:bg-[#2bc4ba] text-candy-plum font-black text-xs border border-candy-plum/15 shadow-chibi-sm flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-candy-plum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span data-i18n="btn_download_file">Muat Turun PDF</span>
+        </button>
+        <button id="btn-export-close" class="candy-btn py-2.5 px-4 rounded-xl bg-candy-sand/80 hover:bg-candy-sand text-candy-plum font-black text-xs border border-candy-plum/10 shadow-chibi-sm">
+          <span data-i18n="btn_close">Tutup</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Pill -->
+  <div id="toast-pill" class="fixed top-14 left-1/2 -translate-x-1/2 bg-candy-plum text-white px-5 py-2.5 rounded-full text-xs sm:text-sm font-black shadow-card-glow z-50 pointer-events-none transform -translate-y-10 opacity-0 transition-all duration-300 flex items-center gap-2.5 border border-white/30">
+    <svg class="w-4 h-4 text-candy-yellow anim-sparkle" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2L14.8 8.6L22 9.2L16.5 14L18.2 21L12 17.3L5.8 21L7.5 14L2 9.2L9.2 8.6L12 2Z"/>
+    </svg>
+    <span id="toast-text">Berjaya disimpan!</span>
+  </div>
+
+  <script>
+    const I18N = {
+      ms: {
+        nav_home: 'Utama',
+        app_subtag: 'Jom Warnakan Dunia Kita!',
+        tagline: 'Pengalaman Mewarna Ajaib & Comel',
+        hero_title_part1: 'Jom Mewarna!',
+        hero_title_part2: 'Pilih Tema & Warnakan Dunia Anda',
+        hero_desc: 'Tekan mana-mana tema comel di bawah untuk membuka pilihan gambar lakaran. Semua gambar mengekalkan bentuk asal tanpa kembang atau herot!',
+        btn_start_coloring: 'Jom Mewarna Sekarang!',
+        btn_my_collection: 'Koleksi Saya',
+        theme_section_title: 'Pilih Tema Kegemaran',
+        all_themes_count: '8 Tema • 40 Halaman',
+        my_collection_title: 'Koleksi Lukisan Saya',
+        my_collection_subtitle: 'Karya seni yang telah anda warnakan disimpan di sini. Anda boleh teruskan mewarna pada bila-bila masa!',
+        btn_back: 'Kembali',
+        btn_back_themes: 'Semua Tema',
+        btn_reset_zoom: 'Asal',
+        btn_undo: 'Undur',
+        btn_redo: 'Buat Semula',
+        btn_clear: 'Padam Warna',
+        btn_save: 'Simpan',
+        btn_export: 'PDF',
+        gesture_hint: 'Picit untuk zum • 2 jari untuk gerak gambar',
+        tool_brush: 'Berus',
+        tool_marker: 'Marker',
+        tool_crayon: 'Krayon',
+        tool_pencil: 'Pensel',
+        tool_fill: 'Isi',
+        tool_eraser: 'Pemadam',
+        theme_page_prompt: 'Tekan mana-mana gambar untuk terus mewarna!',
+        view_pictures: 'Lihat Gambar',
+        loading_art: 'Memuatkan Gambar...',
+        empty_collection_heading: 'Belum ada lukisan yang disimpan!',
+        empty_collection_msg: 'Pilih mana-mana tema comel dan tekan butang Simpan apabila siap mewarna!',
+        confirm_clear_title: 'Padam Semua Warna?',
+        confirm_clear_msg: 'Semua warna yang telah anda warnakan pada gambar ini akan dibersihkan semula. Garisan hitam asal tidak akan hilang.',
+        btn_confirm_clear: 'Ya, Padam',
+        btn_cancel: 'Batal',
+        toast_saved: 'Lukisan berjaya disimpan ke Koleksi Saya!',
+        toast_cleared: 'Warna telah dibersihkan.',
+        toast_exported: 'Fail PDF sedia dimuat turun!',
+        btn_understand: 'Faham',
+        theme_cosy_animals: 'Haiwan Santai',
+        theme_cosy_cafe: 'Kafe Santai',
+        theme_cosy_bedroom: 'Bilik Tidur Selesa',
+        theme_cosy_bakery: 'Kedai Roti Selesa',
+        theme_cosy_garden: 'Taman Selesa',
+        theme_fast_food: 'Makanan Segera',
+        theme_desserts: 'Pencuci Mulut',
+        theme_drinks: 'Minuman',
+        available_badge: 'Sedia Mewarna',
+        confirm_delete_art_title: 'Padam Lukisan Ini?',
+        confirm_delete_art_msg: 'Adakah anda pasti mahu memadam lukisan ini daripada Koleksi Saya?',
+        btn_confirm_delete: 'Ya, Padam',
+        export_modal_title: 'Simpan Lukisan (PDF)',
+        export_modal_hint: 'Tekan & tahan gambar di atas, atau tekan butang di bawah untuk muat turun dokumen PDF.',
+        btn_download_file: 'Muat Turun PDF',
+        btn_close: 'Tutup'
+      },
+      en: {
+        nav_home: 'Home',
+        app_subtag: "Let's Colour Our World!",
+        tagline: 'Magical & Cozy Coloring Experience',
+        hero_title_part1: "Let's Colour!",
+        hero_title_part2: 'Choose a Theme & Color Away',
+        hero_desc: 'Tap any cute theme below to open its pictures. All artwork retains its true proportions without distortion!',
+        btn_start_coloring: "Start Coloring Now!",
+        btn_my_collection: 'My Collection',
+        theme_section_title: 'Choose a Theme',
+        all_themes_count: '8 Themes • 40 Pages',
+        my_collection_title: 'My Artwork Collection',
+        my_collection_subtitle: 'All your colored pages are safely stored here. Reopen and continue coloring anytime!',
+        btn_back: 'Back',
+        btn_back_themes: 'All Themes',
+        btn_reset_zoom: 'Reset',
+        btn_undo: 'Undo',
+        btn_redo: 'Redo',
+        btn_clear: 'Clear',
+        btn_save: 'Save',
+        btn_export: 'PDF',
+        gesture_hint: 'Pinch to zoom • 2 fingers to pan picture',
+        tool_brush: 'Brush',
+        tool_marker: 'Marker',
+        tool_crayon: 'Crayon',
+        tool_pencil: 'Pencil',
+        tool_fill: 'Fill',
+        tool_eraser: 'Eraser',
+        theme_page_prompt: 'Tap any picture to start coloring!',
+        view_pictures: 'View Pictures',
+        loading_art: 'Loading Picture...',
+        empty_collection_heading: 'No saved pictures yet!',
+        empty_collection_msg: 'Choose any cute theme and press Save when you finish coloring!',
+        confirm_clear_title: 'Clear All Colors?',
+        confirm_clear_msg: 'All colors drawn on this picture will be cleared. The original black outlines will never be removed.',
+        btn_confirm_clear: 'Yes, Clear',
+        btn_cancel: 'Cancel',
+        toast_saved: 'Artwork saved to My Collection!',
+        toast_cleared: 'Colors have been cleared.',
+        toast_exported: 'PDF downloaded successfully!',
+        btn_understand: 'Understood',
+        theme_cosy_animals: 'Cosy Animals',
+        theme_cosy_cafe: 'Cosy Café',
+        theme_cosy_bedroom: 'Cosy Bedroom',
+        theme_cosy_bakery: 'Cosy Bakery',
+        theme_cosy_garden: 'Cosy Garden',
+        theme_fast_food: 'Fast Food',
+        theme_desserts: 'Desserts',
+        theme_drinks: 'Drinks',
+        available_badge: 'Ready to Color',
+        confirm_delete_art_title: 'Delete Artwork?',
+        confirm_delete_art_msg: 'Are you sure you want to delete this artwork from My Collection?',
+        btn_confirm_delete: 'Yes, Delete',
+        export_modal_title: 'Save Artwork (PDF)',
+        export_modal_hint: 'Tap & hold the picture above, or tap the button below to download the PDF document.',
+        btn_download_file: 'Download PDF',
+        btn_close: 'Close'
+      }
+    };
+
+    let currentLang = localStorage.getItem('cosy_lang') || 'ms';
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || key;
+    }
+
+    function updateLanguageUI() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+      
+      const btnBm = document.getElementById('lang-bm');
+      const btnEn = document.getElementById('lang-en');
+      if (currentLang === 'ms') {
+        btnBm.className = 'candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-candy-hotpink text-white shadow-xs';
+        btnEn.className = 'candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all text-candy-softplum hover:text-candy-plum';
+      } else {
+        btnEn.className = 'candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-candy-hotpink text-white shadow-xs';
+        btnBm.className = 'candy-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all text-candy-softplum hover:text-candy-plum';
+      }
+      renderFrontPageThemes();
+      if (currentSelectedThemeId) {
+        renderThemePagesView(currentSelectedThemeId);
+      }
+    }
+
+    let audioEnabled = localStorage.getItem('cosy_audio') !== 'false';
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+
+        if (type === 'tap') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now);
+          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.08);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'fill') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } else if (type === 'save') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.2);
+          });
+        }
+      } catch (err) {
+        console.warn('Audio notice:', err);
+      }
+    }
+
+    const DB_NAME = 'CosyColoringMomentsDB_v4';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'artworks';
+    let dbInstance = null;
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        if (dbInstance) return resolve(dbInstance);
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function saveArtworkToDB(artworkRecord) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.put(artworkRecord);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getArtworkFromDB(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.get(id);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getAllArtworksFromDB() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function deleteArtworkFromDB(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.delete(id);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    const THEME_3D_SVGS = {
+      cosy_animals: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <ellipse cx="50" cy="56" rx="36" ry="32" fill="url(#p3d_cat_face)"/>
+          <path d="M22 36 L15 14 Q32 18 36 28 Z" fill="url(#p3d_cat_ear)"/>
+          <path d="M20 30 L17 18 Q28 20 31 26 Z" fill="#FFAEC9"/>
+          <path d="M78 36 L85 14 Q68 18 64 28 Z" fill="url(#p3d_cat_ear)"/>
+          <path d="M80 30 L83 18 Q72 20 69 26 Z" fill="#FFAEC9"/>
+          <ellipse cx="37" cy="52" rx="7" ry="9" fill="#2A1B30"/>
+          <circle cx="34.5" cy="49" r="3.2" fill="#FFFFFF"/>
+          <circle cx="39" cy="54.5" r="1.5" fill="#FFFFFF"/>
+          <ellipse cx="63" cy="52" rx="7" ry="9" fill="#2A1B30"/>
+          <circle cx="60.5" cy="49" r="3.2" fill="#FFFFFF"/>
+          <circle cx="65" cy="54.5" r="1.5" fill="#FFFFFF"/>
+          <ellipse cx="28" cy="62" rx="6" ry="3.5" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="72" cy="62" rx="6" ry="3.5" fill="#FF7167" opacity="0.6"/>
+          <polygon points="50,60 46,57 54,57" fill="#FF5280"/>
+          <path d="M46 62 Q50 66 54 62" stroke="#493451" stroke-width="2.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_cat_face" x1="50" y1="24" x2="50" y2="88" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFFDF7"/>
+              <stop offset="1" stop-color="#FFDDBE"/>
+            </linearGradient>
+            <linearGradient id="p3d_cat_ear" x1="15" y1="14" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF9F43"/>
+              <stop offset="1" stop-color="#E57D1D"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      cosy_cafe: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <path d="M42 22 Q46 14 42 7" stroke="#FF4F9A" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+          <path d="M54 20 Q58 12 54 5" stroke="#FFD93D" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+          <path d="M22 35 H78 L72 80 C71 85 64 89 50 89 C36 89 29 85 28 80 Z" fill="url(#p3d_coffee_cup)"/>
+          <path d="M74 44 C84 44 88 54 86 64 C84 72 75 74 72 74" stroke="url(#p3d_cup_handle)" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="50" cy="35" rx="28" ry="8" fill="#5A3A22"/>
+          <ellipse cx="50" cy="35" rx="25" ry="6.5" fill="#C68B59"/>
+          <path d="M50 36 C50 34 46 32 44 34 C41 36 44 39 50 42 C56 39 59 36 56 34 C54 32 50 34 50 36 Z" fill="#FFFDF8"/>
+          <circle cx="41" cy="56" r="4.5" fill="#493451"/>
+          <circle cx="39.5" cy="54.5" r="1.8" fill="#FFFFFF"/>
+          <circle cx="59" cy="56" r="4.5" fill="#493451"/>
+          <circle cx="57.5" cy="54.5" r="1.8" fill="#FFFFFF"/>
+          <ellipse cx="33" cy="62" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="67" cy="62" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <path d="M46 64 Q50 68 54 64" stroke="#493451" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_coffee_cup" x1="22" y1="35" x2="78" y2="89" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFFFFF"/>
+              <stop offset="1" stop-color="#FFE8EC"/>
+            </linearGradient>
+            <linearGradient id="p3d_cup_handle" x1="72" y1="44" x2="88" y2="74" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF7167"/>
+              <stop offset="1" stop-color="#FF2D87"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      cosy_bedroom: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <path d="M72 15 C66 15 62 19 60 25 C58 35 68 44 78 40 C75 44 68 46 62 43 C54 39 53 28 58 20 C62 14 68 15 72 15 Z" fill="url(#p3d_moon)"/>
+          <rect x="16" y="42" width="68" height="42" rx="14" fill="url(#p3d_pillow)"/>
+          <path d="M34 58 Q40 64 46 58" stroke="#493451" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <path d="M54 58 Q60 64 66 58" stroke="#493451" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <ellipse cx="28" cy="66" rx="5" ry="3" fill="#FF4F9A" opacity="0.55"/>
+          <ellipse cx="72" cy="66" rx="5" ry="3" fill="#FF4F9A" opacity="0.55"/>
+          <circle cx="50" cy="68" r="3" fill="#FF9F43"/>
+          <path d="M32 24 L34 29 L39 31 L34 33 L32 38 L30 33 L25 31 L30 29 Z" fill="#FFD93D"/>
+          <defs>
+            <linearGradient id="p3d_moon" x1="53" y1="15" x2="78" y2="44" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFF385"/>
+              <stop offset="1" stop-color="#FFB300"/>
+            </linearGradient>
+            <linearGradient id="p3d_pillow" x1="16" y1="42" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#E8E4FF"/>
+              <stop offset="1" stop-color="#B29CFF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      cosy_bakery: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <ellipse cx="50" cy="58" rx="38" ry="24" fill="url(#p3d_croissant)"/>
+          <path d="M20 54 Q14 42 24 35 Q34 40 32 56 Z" fill="url(#p3d_croissant_crust)"/>
+          <path d="M80 54 Q86 42 76 35 Q66 40 68 56 Z" fill="url(#p3d_croissant_crust)"/>
+          <path d="M36 28 C30 24 32 12 42 14 C46 8 56 8 60 14 C68 12 70 24 64 28 Z" fill="#FFFFFF"/>
+          <rect x="38" y="27" width="24" height="6" rx="2" fill="#F0F0F0"/>
+          <circle cx="41" cy="56" r="4.2" fill="#3D2012"/>
+          <circle cx="39.5" cy="54" r="1.8" fill="#FFFFFF"/>
+          <circle cx="59" cy="56" r="4.2" fill="#3D2012"/>
+          <circle cx="57.5" cy="54" r="1.8" fill="#FFFFFF"/>
+          <ellipse cx="32" cy="63" rx="4.5" ry="2.5" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="68" cy="63" rx="4.5" ry="2.5" fill="#FF7167" opacity="0.6"/>
+          <path d="M46 64 Q50 69 54 64" stroke="#3D2012" stroke-width="2.2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_croissant" x1="50" y1="34" x2="50" y2="82" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFE79A"/>
+              <stop offset="1" stop-color="#E28929"/>
+            </linearGradient>
+            <linearGradient id="p3d_croissant_crust" x1="20" y1="35" x2="32" y2="56" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFC043"/>
+              <stop offset="1" stop-color="#B85E07"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      cosy_garden: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <path d="M28 56 L34 90 H66 L72 56 Z" fill="url(#p3d_flower_pot)"/>
+          <rect x="24" y="50" width="52" height="9" rx="3" fill="#D36B3B"/>
+          <circle cx="50" cy="24" r="11" fill="url(#p3d_petal)"/>
+          <circle cx="68" cy="35" r="11" fill="url(#p3d_petal)"/>
+          <circle cx="62" cy="52" r="11" fill="url(#p3d_petal)"/>
+          <circle cx="38" cy="52" r="11" fill="url(#p3d_petal)"/>
+          <circle cx="32" cy="35" r="11" fill="url(#p3d_petal)"/>
+          <circle cx="50" cy="38" r="13" fill="url(#p3d_flower_center)"/>
+          <circle cx="45" cy="36" r="2.8" fill="#493451"/>
+          <circle cx="44" cy="35" r="1" fill="#FFFFFF"/>
+          <circle cx="55" cy="36" r="2.8" fill="#493451"/>
+          <circle cx="54" cy="35" r="1" fill="#FFFFFF"/>
+          <ellipse cx="40" cy="41" rx="2.5" ry="1.4" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="60" cy="41" rx="2.5" ry="1.4" fill="#FF7167" opacity="0.6"/>
+          <path d="M47 41 Q50 44 53 41" stroke="#493451" stroke-width="1.8" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_flower_pot" x1="28" y1="56" x2="72" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF935B"/>
+              <stop offset="1" stop-color="#BA4E1E"/>
+            </linearGradient>
+            <linearGradient id="p3d_petal" x1="0" y1="0" x2="1" y2="1">
+              <stop stop-color="#FFA8D3"/>
+              <stop offset="1" stop-color="#FF3887"/>
+            </linearGradient>
+            <linearGradient id="p3d_flower_center" x1="50" y1="25" x2="50" y2="51" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFF275"/>
+              <stop offset="1" stop-color="#FFB300"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      fast_food: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <path d="M20 46 C20 25 32 16 50 16 C68 16 80 25 80 46 Z" fill="url(#p3d_burger_bun_top)"/>
+          <ellipse cx="38" cy="28" rx="2" ry="1" fill="#FFFFFF" opacity="0.8"/>
+          <ellipse cx="50" cy="24" rx="2" ry="1" fill="#FFFFFF" opacity="0.8"/>
+          <ellipse cx="62" cy="30" rx="2" ry="1" fill="#FFFFFF" opacity="0.8"/>
+          <path d="M16 48 Q24 54 32 48 Q40 54 48 48 Q56 54 64 48 Q72 54 84 48 L82 54 H18 Z" fill="#7DE7AD"/>
+          <polygon points="22,54 78,54 74,62 58,68 44,60 30,66" fill="#FFD93D"/>
+          <rect x="20" y="58" width="60" height="12" rx="5" fill="#874722"/>
+          <path d="M22 70 H78 V78 C78 84 70 88 50 88 C30 88 22 84 22 78 Z" fill="url(#p3d_burger_bun_bot)"/>
+          <circle cx="39" cy="38" r="4.2" fill="#493451"/>
+          <circle cx="37.5" cy="36.5" r="1.6" fill="#FFFFFF"/>
+          <circle cx="61" cy="38" r="4.2" fill="#493451"/>
+          <circle cx="59.5" cy="36.5" r="1.6" fill="#FFFFFF"/>
+          <ellipse cx="30" cy="42" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="70" cy="42" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <path d="M45 42 Q50 46 55 42" stroke="#493451" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_burger_bun_top" x1="50" y1="16" x2="50" y2="46" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFCE79"/>
+              <stop offset="1" stop-color="#E28929"/>
+            </linearGradient>
+            <linearGradient id="p3d_burger_bun_bot" x1="50" y1="70" x2="50" y2="88" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFCE79"/>
+              <stop offset="1" stop-color="#C77017"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      desserts: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <path d="M28 54 L34 88 H66 L72 54 Z" fill="url(#p3d_cupcake_wrap)"/>
+          <path d="M22 54 C18 46 28 38 38 42 C38 32 50 26 58 32 C66 24 80 32 78 44 C84 48 80 56 72 56 Z" fill="url(#p3d_frosting)"/>
+          <circle cx="50" cy="22" r="8.5" fill="url(#p3d_cherry)"/>
+          <path d="M52 14 Q60 6 68 8" stroke="#5A3A22" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="36" y="38" width="4" height="2" rx="1" fill="#FFD93D" transform="rotate(25 36 38)"/>
+          <rect x="52" y="34" width="4" height="2" rx="1" fill="#32D6CC" transform="rotate(-30 52 34)"/>
+          <rect x="64" y="42" width="4" height="2" rx="1" fill="#A98BFF" transform="rotate(45 64 42)"/>
+          <circle cx="42" cy="70" r="3.8" fill="#493451"/>
+          <circle cx="40.8" cy="68.8" r="1.5" fill="#FFFFFF"/>
+          <circle cx="58" cy="70" r="3.8" fill="#493451"/>
+          <circle cx="56.8" cy="68.8" r="1.5" fill="#FFFFFF"/>
+          <ellipse cx="35" cy="74" rx="3.5" ry="2" fill="#FF4F9A" opacity="0.6"/>
+          <ellipse cx="65" cy="74" rx="3.5" ry="2" fill="#FF4F9A" opacity="0.6"/>
+          <path d="M47 75 Q50 78 53 75" stroke="#493451" stroke-width="1.8" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_cupcake_wrap" x1="28" y1="54" x2="72" y2="88" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#55B8FF"/>
+              <stop offset="1" stop-color="#1A78DE"/>
+            </linearGradient>
+            <linearGradient id="p3d_frosting" x1="22" y1="26" x2="78" y2="56" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFF5FB"/>
+              <stop offset="1" stop-color="#FFA8D8"/>
+            </linearGradient>
+            <linearGradient id="p3d_cherry" x1="45" y1="16" x2="55" y2="30" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF4F7A"/>
+              <stop offset="1" stop-color="#B80036"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `,
+      drinks: `
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" fill="none">
+          <rect x="52" y="8" width="10" height="40" rx="4" fill="#FF7167" transform="rotate(12 52 8)"/>
+          <path d="M26 32 L34 86 C35 90 41 93 50 93 C59 93 65 90 66 86 L74 32 Z" fill="url(#p3d_cup_drink)"/>
+          <path d="M24 32 C24 24 35 22 50 22 C65 22 76 24 76 32 Z" fill="#FFFFFF" opacity="0.75"/>
+          <ellipse cx="50" cy="32" rx="26" ry="4" fill="#EAEAEA"/>
+          <circle cx="40" cy="80" r="4.5" fill="#361E14"/>
+          <circle cx="52" cy="82" r="4.5" fill="#361E14"/>
+          <circle cx="62" cy="78" r="4.5" fill="#361E14"/>
+          <circle cx="45" cy="73" r="4" fill="#361E14"/>
+          <circle cx="57" cy="72" r="4" fill="#361E14"/>
+          <circle cx="42" cy="52" r="4.2" fill="#361E14"/>
+          <circle cx="40.5" cy="50.2" r="1.6" fill="#FFFFFF"/>
+          <circle cx="58" cy="52" r="4.2" fill="#361E14"/>
+          <circle cx="56.5" cy="50.2" r="1.6" fill="#FFFFFF"/>
+          <ellipse cx="34" cy="58" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <ellipse cx="66" cy="58" rx="4" ry="2" fill="#FF7167" opacity="0.6"/>
+          <path d="M46 59 Q50 63 54 59" stroke="#361E14" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="p3d_cup_drink" x1="26" y1="32" x2="74" y2="93" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FCE1C4"/>
+              <stop offset="1" stop-color="#DE9D6C"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      `
+    };
+
+    const THEMES = [
+      { id: 'cosy_animals', nameBM: 'Haiwan Santai', nameEN: 'Cosy Animals', bgGrad: 'from-[#FFF0F6] to-[#FFE2EE]', borderCol: 'border-candy-pink/40', accentCol: '#FF4F9A' },
+      { id: 'cosy_cafe', nameBM: 'Kafe Santai', nameEN: 'Cosy Café', bgGrad: 'from-[#FFF7ED] to-[#FED7AA]', borderCol: 'border-candy-orange/40', accentCol: '#FF9F43' },
+      { id: 'cosy_bedroom', nameBM: 'Bilik Tidur Selesa', nameEN: 'Cosy Bedroom', bgGrad: 'from-[#F5F3FF] to-[#DDD6FE]', borderCol: 'border-candy-lavender/40', accentCol: '#A98BFF' },
+      { id: 'cosy_bakery', nameBM: 'Kedai Roti Selesa', nameEN: 'Cosy Bakery', bgGrad: 'from-[#FEFCE8] to-[#FEF08A]', borderCol: 'border-candy-yellow/50', accentCol: '#EAB308' },
+      { id: 'cosy_garden', nameBM: 'Taman Selesa', nameEN: 'Cosy Garden', bgGrad: 'from-[#F0FDF4] to-[#BBF7D0]', borderCol: 'border-candy-mint/50', accentCol: '#22C55E' },
+      { id: 'fast_food', nameBM: 'Makanan Segera', nameEN: 'Fast Food', bgGrad: 'from-[#FFF1F2] to-[#FECDD3]', borderCol: 'border-candy-coral/40', accentCol: '#FF7167' },
+      { id: 'desserts', nameBM: 'Pencuci Mulut', nameEN: 'Desserts', bgGrad: 'from-[#FDF2F8] to-[#FBCFE8]', borderCol: 'border-candy-pink/40', accentCol: '#EC4899' },
+      { id: 'drinks', nameBM: 'Minuman', nameEN: 'Drinks', bgGrad: 'from-[#ECFEFF] to-[#A5F3FC]', borderCol: 'border-candy-turquoise/40', accentCol: '#06B6D4' }
+    ];
+
+    const ASSET_REGISTRY = [
+      // Theme 01 — Cosy Animals
+      { id: 'cosy_animals_1', themeId: 'cosy_animals', titleBM: 'Pondok Kucing Selesa', titleEN: 'The Cosy Cat Cottage', imageSrc: 'https://imglink.cc/cdn/uJxB6xrdDt.jpeg' },
+      { id: 'cosy_animals_2', themeId: 'cosy_animals', titleBM: 'Arnab Membakar Roti', titleEN: 'Bunny Baking Day', imageSrc: 'https://imglink.cc/cdn/zDneH3i7xf.jpeg' },
+      { id: 'cosy_animals_3', themeId: 'cosy_animals', titleBM: 'Berkelah Si Beruang Kecil', titleEN: 'Little Bear Picnic', imageSrc: 'https://imglink.cc/cdn/91LqkW3y1k.jpeg' },
+      { id: 'cosy_animals_4', themeId: 'cosy_animals', titleBM: 'Bilik Anak Kucing Mengantuk', titleEN: 'Sleepy Kittens’ Room', imageSrc: 'https://imglink.cc/cdn/xlQwMa061G.jpeg' },
+      { id: 'cosy_animals_5', themeId: 'cosy_animals', titleBM: 'Kedai Rimba Kecil', titleEN: 'Little Woodland Shop', imageSrc: 'https://imglink.cc/cdn/ss7r00LN_y.jpeg' },
+
+      // Theme 02 — Cosy Café
+      { id: 'cosy_cafe_1', themeId: 'cosy_cafe', titleBM: 'Kafe Sudut Kecil', titleEN: 'The Little Corner Café', imageSrc: 'https://imglink.cc/cdn/imtW63v9FC.jpeg' },
+      { id: 'cosy_cafe_2', themeId: 'cosy_cafe', titleBM: 'Kaunter Kafe Roti', titleEN: 'Bakery Café Counter', imageSrc: 'https://imglink.cc/cdn/P4UgzHjCiW.jpeg' },
+      { id: 'cosy_cafe_3', themeId: 'cosy_cafe', titleBM: 'Kafe Tingkap Hari Hujan', titleEN: 'Rainy Day Window Café', imageSrc: 'https://imglink.cc/cdn/QvHgUbpUET.jpeg' },
+      { id: 'cosy_cafe_4', themeId: 'cosy_cafe', titleBM: 'Kafe Haiwan Comel', titleEN: 'Tiny Animal Café', imageSrc: 'https://imglink.cc/cdn/2ql0yCJRBI.jpeg' },
+      { id: 'cosy_cafe_5', themeId: 'cosy_cafe', titleBM: 'Loteng Atas Kafe', titleEN: 'The Café Upstairs Loft', imageSrc: 'https://imglink.cc/cdn/1o-H2w1U0O.jpeg' },
+
+      // Theme 03 — Cosy Bedroom
+      { id: 'cosy_bedroom_1', themeId: 'cosy_bedroom', titleBM: 'Bilik Tidur Kelambu Indah', titleEN: 'The Dreamy Canopy Bedroom', imageSrc: 'https://imglink.cc/cdn/BaH5VCEXwF.jpeg' },
+      { id: 'cosy_bedroom_2', themeId: 'cosy_bedroom', titleBM: 'Bilik Tidur Loteng Comel', titleEN: 'The Tiny Attic Bedroom', imageSrc: 'https://imglink.cc/cdn/UXO3807RoL.jpeg' },
+      { id: 'cosy_bedroom_3', themeId: 'cosy_bedroom', titleBM: 'Bilik Membaca Hari Hujan', titleEN: 'Rainy Day Reading Bedroom', imageSrc: 'https://imglink.cc/cdn/6iAQvzxrV0.jpeg' },
+      { id: 'cosy_bedroom_4', themeId: 'cosy_bedroom', titleBM: 'Bilik Tidur Beruang Kecil', titleEN: 'The Little Bear’s Bedroom', imageSrc: 'https://imglink.cc/cdn/HCcVv_BJEe.jpeg' },
+      { id: 'cosy_bedroom_5', themeId: 'cosy_bedroom', titleBM: 'Bilik Tidur Taman Bunga', titleEN: 'The Flower Garden Bedroom', imageSrc: 'https://imglink.cc/cdn/Dw16EOQflu.jpeg' },
+
+      // Theme 04 — Cosy Bakery
+      { id: 'cosy_bakery_1', themeId: 'cosy_bakery', titleBM: 'Kedai Roti Kecil', titleEN: 'The Little Bakery Shop', imageSrc: 'https://imglink.cc/cdn/6Bbw6PfOyt.jpeg' },
+      { id: 'cosy_bakery_2', themeId: 'cosy_bakery', titleBM: 'Dapur Bakar Selesa', titleEN: 'The Cosy Baking Kitchen', imageSrc: 'https://imglink.cc/cdn/mPq1f5_-AI.jpeg' },
+      { id: 'cosy_bakery_3', themeId: 'cosy_bakery', titleBM: 'Sudut Pameran Pastri', titleEN: 'The Pastry Display Corner', imageSrc: 'https://imglink.cc/cdn/xAkXAvE2OQ.jpeg' },
+      { id: 'cosy_bakery_4', themeId: 'cosy_bakery', titleBM: 'Studio Hiasan Kek Cilik', titleEN: 'The Little Cake Decorating Studio', imageSrc: 'https://imglink.cc/cdn/oi0ubcyDiI.jpeg' },
+      { id: 'cosy_bakery_5', themeId: 'cosy_bakery', titleBM: 'Jamuan Teh Taman Roti', titleEN: 'The Bakery Garden Tea Party', imageSrc: 'https://imglink.cc/cdn/sX5gvUmS5c.jpeg' },
+
+      // Theme 05 — Cosy Garden
+      { id: 'cosy_garden_1', themeId: 'cosy_garden', titleBM: 'Taman Bunga Indah', titleEN: 'The Little Flower Garden', imageSrc: 'https://imglink.cc/cdn/EYg38jF_qY.jpeg' },
+      { id: 'cosy_garden_2', themeId: 'cosy_garden', titleBM: 'Rumah Hijau Kecil', titleEN: 'The Tiny Greenhouse', imageSrc: 'https://imglink.cc/cdn/UDvl1XirpF.jpeg' },
+      { id: 'cosy_garden_3', themeId: 'cosy_garden', titleBM: 'Sudut Membaca di Taman', titleEN: 'The Garden Reading Nook', imageSrc: 'https://imglink.cc/cdn/CY2qcNgHE8.jpeg' },
+      { id: 'cosy_garden_4', themeId: 'cosy_garden', titleBM: 'Bangsal Kebun Kecil', titleEN: 'The Little Garden Shed', imageSrc: 'https://imglink.cc/cdn/DkWO888GNf.jpeg' },
+      { id: 'cosy_garden_5', themeId: 'cosy_garden', titleBM: 'Petak Sayur Segar', titleEN: 'The Little Vegetable Patch', imageSrc: 'https://imglink.cc/cdn/BMkSAtPQ6R.jpeg' },
+
+      // Theme 06 — Fast Food
+      { id: 'fast_food_1', themeId: 'fast_food', titleBM: 'Set Burger Ceria', titleEN: 'The Happy Burger Meal', imageSrc: 'https://imglink.cc/cdn/HvECtYqjqy.jpeg' },
+      { id: 'fast_food_2', themeId: 'fast_food', titleBM: 'Pesta Pizza Enak', titleEN: 'Pizza Party', imageSrc: 'https://imglink.cc/cdn/ngs-lpMN28.jpeg' },
+      { id: 'fast_food_3', themeId: 'fast_food', titleBM: 'Ayam Rangup & Kentang Goreng', titleEN: 'Crispy Chicken & Fries', imageSrc: 'https://imglink.cc/cdn/P6640PNzMU.jpeg' },
+      { id: 'fast_food_4', themeId: 'fast_food', titleBM: 'Trak Makanan Sosej Panas', titleEN: 'Hot Dog Food Truck', imageSrc: 'https://imglink.cc/cdn/BXxW5b5D2z.jpeg' },
+      { id: 'fast_food_5', themeId: 'fast_food', titleBM: 'Gerai Taco Kecil', titleEN: 'The Little Taco Stand', imageSrc: 'https://imglink.cc/cdn/haZBGsjaoz.jpeg' },
+
+      // Theme 07 — Desserts
+      { id: 'desserts_1', themeId: 'desserts', titleBM: 'Dunia Manisan Kek Cawan', titleEN: 'The Cupcake Wonderland', imageSrc: 'https://imglink.cc/cdn/-lCR8AMyiQ.jpeg' },
+      { id: 'desserts_2', themeId: 'desserts', titleBM: 'Pesta Hias Donut', titleEN: 'Donut Decorating Party', imageSrc: 'https://imglink.cc/cdn/ma8-AFP7Nf.jpeg' },
+      { id: 'desserts_3', themeId: 'desserts', titleBM: 'Kedai Aiskrim Manis', titleEN: 'The Ice Cream Parlour', imageSrc: 'https://imglink.cc/cdn/VCzqe_VjXo.jpeg' },
+      { id: 'desserts_4', themeId: 'desserts', titleBM: 'Pameran Kek Enak', titleEN: 'Sweet Cake Display', imageSrc: 'https://imglink.cc/cdn/teyvBm8fUf.jpeg' },
+      { id: 'desserts_5', themeId: 'desserts', titleBM: 'Kedai Biskut & Makaron', titleEN: 'Macaron & Cookie Shop', imageSrc: 'https://imglink.cc/cdn/ui9PcEyj43.jpeg' },
+
+      // Theme 08 — Drinks
+      { id: 'drinks_1', themeId: 'drinks', titleBM: 'Sahabat Teh Boba', titleEN: 'Bubble Tea Besties', imageSrc: 'https://imglink.cc/cdn/5LtaQlwQ0T.jpeg' },
+      { id: 'drinks_2', themeId: 'drinks', titleBM: 'Bar Jus Buah Segar', titleEN: 'Fruity Juice Bar', imageSrc: 'https://imglink.cc/cdn/zgFOc9zilL.jpeg' },
+      { id: 'drinks_3', themeId: 'drinks', titleBM: 'Kafe Susu Kocak', titleEN: 'The Milkshake Café', imageSrc: 'https://imglink.cc/cdn/JdnSxT3Y4W.jpeg' },
+      { id: 'drinks_4', themeId: 'drinks', titleBM: 'Gerai Lemon Musim Panas', titleEN: 'Lemonade Summer Stand', imageSrc: 'https://imglink.cc/cdn/JpytNHAwmY.jpeg' },
+      { id: 'drinks_5', themeId: 'drinks', titleBM: 'Pesta Buah & Smutius', titleEN: 'Smoothie & Fruit Party', imageSrc: 'https://imglink.cc/cdn/jupt4ENQqu.jpeg' }
+    ];
+
+    let currentSelectedThemeId = null;
+    let currentActivePage = null;
+
+    function renderFrontPageThemes() {
+      const grid = document.getElementById('frontpage-themes-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      THEMES.forEach(theme => {
+        const themeTitle = currentLang === 'ms' ? theme.nameBM : theme.nameEN;
+        const pageCount = ASSET_REGISTRY.filter(p => p.themeId === theme.id).length;
+
+        const card = document.createElement('div');
+        card.className = `candy-btn bg-gradient-to-b ${theme.bgGrad} rounded-3xl p-4 border-3 ${theme.borderCol} shadow-chibi hover:shadow-chibi-hover flex flex-col items-center justify-between cursor-pointer transition-all relative overflow-hidden group`;
+
+        card.innerHTML = `
+          <div class="card-gloss-highlight"></div>
+          
+          <div class="w-24 h-24 sm:w-28 sm:h-28 my-1 flex items-center justify-center relative transition-transform duration-300 group-hover:scale-110">
+            ${THEME_3D_SVGS[theme.id]}
+          </div>
+
+          <div class="w-full text-center mt-2 z-10">
+            <h3 class="font-display font-black text-base sm:text-lg text-candy-plum tracking-tight leading-snug">
+              ${themeTitle}
+            </h3>
+            <span class="text-[11px] font-extrabold text-candy-softplum/90 block mt-0.5">
+              ${pageCount} ${currentLang === 'ms' ? 'Gambar Comel' : 'Cute Pages'}
+            </span>
+          </div>
+
+          <div class="mt-3 w-full bg-white/90 hover:bg-white text-candy-plum text-xs font-black py-2 px-3 rounded-2xl border border-candy-sand flex items-center justify-center gap-1.5 shadow-chibi-sm transition-all z-10">
+            <span>${t('view_pictures')}</span>
+            <svg class="w-3.5 h-3.5 text-candy-hotpink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        `;
+
+        card.onclick = () => {
+          playSound('tap');
+          openThemePage(theme.id);
+        };
+
+        grid.appendChild(card);
+      });
+    }
+
+    function openThemePage(themeId) {
+      currentSelectedThemeId = themeId;
+      const theme = THEMES.find(t => t.id === themeId);
+      if (!theme) return;
+
+      const themeTitle = currentLang === 'ms' ? theme.nameBM : theme.nameEN;
+      document.getElementById('theme-hero-title').textContent = themeTitle;
+      
+      const iconContainer = document.getElementById('theme-hero-icon-container');
+      iconContainer.innerHTML = THEME_3D_SVGS[theme.id];
+
+      renderThemePagesView(themeId);
+
+      document.getElementById('screen-home').classList.add('hidden');
+      document.getElementById('screen-collection').classList.add('hidden');
+      document.getElementById('screen-workspace').classList.add('hidden');
+      document.getElementById('screen-theme-pages').classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function renderThemePagesView(themeId) {
+      const grid = document.getElementById('theme-pages-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const pages = ASSET_REGISTRY.filter(p => p.themeId === themeId);
+
+      pages.forEach((page, index) => {
+        const card = document.createElement('div');
+        card.className = 'candy-btn bg-white rounded-3xl p-3 border-2 border-candy-sand shadow-chibi hover:shadow-chibi-hover flex flex-col items-center cursor-pointer transition-all relative overflow-hidden group';
+
+        const title = currentLang === 'ms' ? page.titleBM : page.titleEN;
+
+        card.innerHTML = `
+          <div class="w-full aspect-[4/5] bg-[#FDFBF7] rounded-2xl flex items-center justify-center p-2 mb-2 relative overflow-hidden border border-candy-sand/80 shadow-inner">
+            <img src="${page.imageSrc}" alt="${title}" loading="lazy" class="max-w-full max-h-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105" onerror="handleImageError(this, '${page.themeId}', '${title}')">
+            <div class="absolute top-1.5 right-1.5 bg-candy-mint text-candy-plum text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-xs border border-candy-plum/15">
+              ${t('available_badge')}
+            </div>
+          </div>
+          <h4 class="font-display font-black text-xs text-candy-plum text-center truncate w-full px-1">
+            ${title}
+          </h4>
+          <span class="text-[9px] text-candy-hotpink font-extrabold mt-0.5">
+            #${index + 1}
+          </span>
+        `;
+
+        card.onclick = () => openColoringPage(page);
+        grid.appendChild(card);
+      });
+    }
+
+    function handleImageError(imgEl, themeId, title) {
+      imgEl.onerror = null;
+      imgEl.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%23FFFDF9"/><rect x="15" y="15" width="270" height="370" rx="15" fill="none" stroke="%23493451" stroke-width="4"/><circle cx="150" cy="180" r="70" fill="%23F3E8FF" stroke="%23493451" stroke-width="4"/><ellipse cx="125" cy="170" rx="7" ry="10" fill="%23493451"/><ellipse cx="175" cy="170" rx="7" ry="10" fill="%23493451"/><path d="M135 200 Q150 215 165 200" stroke="%23493451" stroke-width="4" stroke-linecap="round" fill="none"/><text x="150" y="320" font-family="sans-serif" font-weight="900" font-size="16" text-anchor="middle" fill="%23FF4F9A">${encodeURIComponent(title)}</text></svg>`;
+    }
+
+    function showModal({ title, message, confirmText, cancelText, onConfirm, showCancel = true }) {
+      const modal = document.getElementById('modal-container');
+      const card = document.getElementById('modal-card');
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-message').textContent = message;
+
+      const btnConfirm = document.getElementById('modal-btn-confirm');
+      const btnCancel = document.getElementById('modal-btn-cancel');
+
+      btnConfirm.textContent = confirmText || t('btn_understand');
+      btnCancel.textContent = cancelText || t('btn_cancel');
+      btnCancel.style.display = showCancel ? 'block' : 'none';
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      }, 10);
+
+      const closeModal = () => {
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+      };
+
+      btnConfirm.onclick = () => {
+        closeModal();
+        if (onConfirm) onConfirm();
+      };
+      btnCancel.onclick = closeModal;
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast-pill');
+      document.getElementById('toast-text').textContent = text;
+      toast.classList.remove('-translate-y-10', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-10', 'opacity-0');
+      }, 2200);
+    }
+
+    let CANVAS_WIDTH = 1200;
+    let CANVAS_HEIGHT = 1500;
+
+    const viewport = document.getElementById('canvas-viewport');
+    const stage = document.getElementById('canvas-stage');
+    const lineArtCanvas = document.getElementById('line-art-canvas');
+    const colorCanvas = document.getElementById('color-canvas');
+    const lineArtCtx = lineArtCanvas.getContext('2d', { willReadFrequently: true });
+    const colorCtx = colorCanvas.getContext('2d', { willReadFrequently: true });
+
+    let scale = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let baseFitScale = 1.0;
+    const MIN_SCALE = 1.0;
+    const MAX_SCALE = 5.0;
+
+    let currentTool = 'brush';
+    let currentColor = '#FF2D87';
+    let currentStrokeSize = 24;
+
+    let isDrawing = false;
+    let isPinching = false;
+    let initialPinchDistance = 0;
+    let initialScale = 1.0;
+    let initialPanX = 0;
+    let initialPanY = 0;
+    let pinchCenter = { x: 0, y: 0 };
+    let lastDrawPoint = null;
+
+    const MAX_HISTORY = 16;
+    let undoStack = [];
+    let redoStack = [];
+
+    function saveHistorySnapshot() {
+      try {
+        const snapshot = colorCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        undoStack.push(snapshot);
+        if (undoStack.length > MAX_HISTORY) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoButtons();
+      } catch (e) {
+        console.warn('History snapshot notice:', e);
+      }
+    }
+
+    function updateUndoRedoButtons() {
+      document.getElementById('btn-undo').disabled = undoStack.length === 0;
+      document.getElementById('btn-redo').disabled = redoStack.length === 0;
+    }
+
+    function updateStageTransform() {
+      const vpRect = viewport.getBoundingClientRect();
+      const stageW = CANVAS_WIDTH * baseFitScale;
+      const stageH = CANVAS_HEIGHT * baseFitScale;
+
+      const maxPanX = (stageW * scale - stageW) / 2 + vpRect.width * 0.45;
+      const minPanX = -maxPanX;
+      const maxPanY = (stageH * scale - stageH) / 2 + vpRect.height * 0.45;
+      const minPanY = -maxPanY;
+
+      panX = Math.max(minPanX, Math.min(maxPanX, panX));
+      panY = Math.max(minPanY, Math.min(maxPanY, panY));
+
+      stage.style.width = `${stageW}px`;
+      stage.style.height = `${stageH}px`;
+      stage.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+
+      const pct = Math.round(scale * 100);
+      document.getElementById('zoom-indicator').textContent = `${pct}%`;
+    }
+
+    function resetZoom() {
+      scale = 1.0;
+      panX = 0;
+      panY = 0;
+      updateStageTransform();
+    }
+
+    function resizeCanvasViewport() {
+      const vpRect = viewport.getBoundingClientRect();
+      if (vpRect.width <= 0 || vpRect.height <= 0) return;
+      const padding = 16;
+      const availW = vpRect.width - padding;
+      const availH = vpRect.height - padding;
+      baseFitScale = Math.min(availW / CANVAS_WIDTH, availH / CANVAS_HEIGHT);
+      updateStageTransform();
+    }
+
+    window.addEventListener('resize', resizeCanvasViewport);
+
+    function getArtCoordinates(clientX, clientY) {
+      const stageRect = stage.getBoundingClientRect();
+      const normX = (clientX - stageRect.left) / stageRect.width;
+      const normY = (clientY - stageRect.top) / stageRect.height;
+      return {
+        x: Math.round(normX * CANVAS_WIDTH),
+        y: Math.round(normY * CANVAS_HEIGHT)
+      };
+    }
+
+    function drawStrokeSegment(from, to) {
+      colorCtx.save();
+
+      if (currentTool === 'eraser') {
+        colorCtx.globalCompositeOperation = 'destination-out';
+        colorCtx.lineWidth = currentStrokeSize * 1.6;
+        colorCtx.lineCap = 'round';
+        colorCtx.lineJoin = 'round';
+        colorCtx.beginPath();
+        colorCtx.moveTo(from.x, from.y);
+        colorCtx.lineTo(to.x, to.y);
+        colorCtx.stroke();
+      } else if (currentTool === 'brush') {
+        colorCtx.globalCompositeOperation = 'source-over';
+        colorCtx.strokeStyle = currentColor;
+        colorCtx.fillStyle = currentColor;
+        colorCtx.lineWidth = currentStrokeSize;
+        colorCtx.lineCap = 'round';
+        colorCtx.lineJoin = 'round';
+        colorCtx.beginPath();
+        colorCtx.moveTo(from.x, from.y);
+        colorCtx.lineTo(to.x, to.y);
+        colorCtx.stroke();
+      } else if (currentTool === 'marker') {
+        colorCtx.globalCompositeOperation = 'source-over';
+        colorCtx.strokeStyle = currentColor;
+        colorCtx.fillStyle = currentColor;
+        colorCtx.lineWidth = currentStrokeSize * 1.35;
+        colorCtx.lineCap = 'round';
+        colorCtx.lineJoin = 'round';
+        colorCtx.globalAlpha = 0.72;
+        colorCtx.beginPath();
+        colorCtx.moveTo(from.x, from.y);
+        colorCtx.lineTo(to.x, to.y);
+        colorCtx.stroke();
+      } else if (currentTool === 'crayon') {
+        colorCtx.globalCompositeOperation = 'source-over';
+        colorCtx.fillStyle = currentColor;
+        colorCtx.strokeStyle = currentColor;
+
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const dist = Math.hypot(dx, dy);
+        const radius = currentStrokeSize * 0.55;
+        const steps = Math.max(1, Math.ceil(dist / 2.5));
+
+        const numStreaks = Math.min(8, Math.max(4, Math.floor(currentStrokeSize / 4)));
+        for (let s = 0; s < numStreaks; s++) {
+          const offsetRatio = (s / (numStreaks - 1 || 1) - 0.5) * 2;
+          const perpX = dist > 0 ? -dy / dist : 0;
+          const perpY = dist > 0 ? dx / dist : 0;
+          const jitterX = (Math.random() - 0.5) * 2.5;
+          const jitterY = (Math.random() - 0.5) * 2.5;
+
+          const offsetX = perpX * offsetRatio * (radius * 0.7) + jitterX;
+          const offsetY = perpY * offsetRatio * (radius * 0.7) + jitterY;
+
+          colorCtx.save();
+          colorCtx.lineWidth = Math.max(2, (currentStrokeSize / numStreaks) * (0.85 + Math.random() * 0.5));
+          colorCtx.lineCap = 'round';
+          colorCtx.lineJoin = 'round';
+          colorCtx.globalAlpha = 0.20 + Math.random() * 0.22;
+          colorCtx.beginPath();
+          colorCtx.moveTo(from.x + offsetX, from.y + offsetY);
+          colorCtx.lineTo(to.x + offsetX, to.y + offsetY);
+          colorCtx.stroke();
+          colorCtx.restore();
+        }
+
+        const specksPerStep = Math.max(3, Math.floor(currentStrokeSize * 0.32));
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const cx = from.x + dx * t;
+          const cy = from.y + dy * t;
+
+          for (let j = 0; j < specksPerStep; j++) {
+            const r = radius * Math.sqrt(Math.random());
+            const theta = Math.random() * Math.PI * 2;
+            const px = cx + r * Math.cos(theta);
+            const py = cy + r * Math.sin(theta);
+            const speckRadius = 0.9 + Math.random() * (currentStrokeSize * 0.11);
+
+            colorCtx.save();
+            colorCtx.globalAlpha = 0.28 + Math.random() * 0.52;
+            colorCtx.beginPath();
+            colorCtx.arc(px, py, speckRadius, 0, Math.PI * 2);
+            colorCtx.fill();
+            colorCtx.restore();
+          }
+        }
+      } else if (currentTool === 'pencil') {
+        colorCtx.globalCompositeOperation = 'source-over';
+        colorCtx.strokeStyle = currentColor;
+        colorCtx.lineWidth = Math.max(3.5, currentStrokeSize * 0.45);
+        colorCtx.lineCap = 'round';
+        colorCtx.lineJoin = 'round';
+        colorCtx.globalAlpha = 0.55;
+        colorCtx.beginPath();
+        colorCtx.moveTo(from.x, from.y);
+        colorCtx.lineTo(to.x, to.y);
+        colorCtx.stroke();
+      }
+
+      colorCtx.restore();
+    }
+
+    function hexToRgba(hex) {
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255,
+        a: 255
+      };
+    }
+
+    function performFloodFill(startX, startY) {
+      if (startX < 0 || startX >= CANVAS_WIDTH || startY < 0 || startY >= CANVAS_HEIGHT) return;
+
+      try {
+        const lineImgData = lineArtCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const colorImgData = colorCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const lineData = lineImgData.data;
+        const colorData = colorImgData.data;
+
+        const fillRgba = hexToRgba(currentColor);
+        const startIndex = (startY * CANVAS_WIDTH + startX) * 4;
+
+        const startLineLum = 0.299 * lineData[startIndex] + 0.587 * lineData[startIndex + 1] + 0.114 * lineData[startIndex + 2];
+        if (startLineLum < 95 && lineData[startIndex + 3] > 180) {
+          return;
+        }
+
+        const targetR = colorData[startIndex];
+        const targetG = colorData[startIndex + 1];
+        const targetB = colorData[startIndex + 2];
+        const targetA = colorData[startIndex + 3];
+
+        if (
+          Math.abs(targetR - fillRgba.r) < 5 &&
+          Math.abs(targetG - fillRgba.g) < 5 &&
+          Math.abs(targetB - fillRgba.b) < 5 &&
+          targetA === 255
+        ) {
+          return;
+        }
+
+        const visited = new Uint8Array(CANVAS_WIDTH * CANVAS_HEIGHT);
+        const queue = [startX, startY];
+        visited[startY * CANVAS_WIDTH + startX] = 1;
+
+        saveHistorySnapshot();
+
+        const isWall = (x, y) => {
+          const idx = (y * CANVAS_WIDTH + x) * 4;
+          const lum = 0.299 * lineData[idx] + 0.587 * lineData[idx + 1] + 0.114 * lineData[idx + 2];
+          return lum < 95 && lineData[idx + 3] > 180;
+        };
+
+        const matchesTarget = (x, y) => {
+          const idx = (y * CANVAS_WIDTH + x) * 4;
+          return (
+            Math.abs(colorData[idx] - targetR) < 22 &&
+            Math.abs(colorData[idx + 1] - targetG) < 22 &&
+            Math.abs(colorData[idx + 2] - targetB) < 22 &&
+            Math.abs(colorData[idx + 3] - targetA) < 22
+          );
+        };
+
+        let head = 0;
+        while (head < queue.length) {
+          const cx = queue[head++];
+          const cy = queue[head++];
+
+          const cIdx = (cy * CANVAS_WIDTH + cx) * 4;
+          colorData[cIdx] = fillRgba.r;
+          colorData[cIdx + 1] = fillRgba.g;
+          colorData[cIdx + 2] = fillRgba.b;
+          colorData[cIdx + 3] = 255;
+
+          const neighbors = [
+            [cx + 1, cy],
+            [cx - 1, cy],
+            [cx, cy + 1],
+            [cx, cy - 1]
+          ];
+
+          for (let i = 0; i < 4; i++) {
+            const nx = neighbors[i][0];
+            const ny = neighbors[i][1];
+
+            if (nx >= 0 && nx < CANVAS_WIDTH && ny >= 0 && ny < CANVAS_HEIGHT) {
+              const vIdx = ny * CANVAS_WIDTH + nx;
+              if (!visited[vIdx]) {
+                visited[vIdx] = 1;
+                if (!isWall(nx, ny) && matchesTarget(nx, ny)) {
+                  queue.push(nx, ny);
+                }
+              }
+            }
+          }
+        }
+
+        colorCtx.putImageData(colorImgData, 0, 0);
+        playSound('fill');
+      } catch (err) {
+        console.warn('Flood fill fallback:', err);
+        saveHistorySnapshot();
+        colorCtx.save();
+        colorCtx.fillStyle = currentColor;
+        colorCtx.beginPath();
+        colorCtx.arc(startX, startY, currentStrokeSize * 2, 0, Math.PI * 2);
+        colorCtx.fill();
+        colorCtx.restore();
+        playSound('fill');
+      }
+    }
+
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        isDrawing = false;
+        lastDrawPoint = null;
+
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        initialPinchDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        initialScale = scale;
+        initialPanX = panX;
+        initialPanY = panY;
+
+        const vpRect = viewport.getBoundingClientRect();
+        pinchCenter = {
+          x: ((t1.clientX + t2.clientX) / 2) - vpRect.left - (vpRect.width / 2),
+          y: ((t1.clientY + t2.clientY) / 2) - vpRect.top - (vpRect.height / 2)
+        };
+        e.preventDefault();
+        return;
+      }
+
+      if (e.touches.length === 1 && !isPinching) {
+        const touch = e.touches[0];
+        const artPt = getArtCoordinates(touch.clientX, touch.clientY);
+
+        if (currentTool === 'fill') {
+          performFloodFill(artPt.x, artPt.y);
+          e.preventDefault();
+          return;
+        }
+
+        isDrawing = true;
+        lastDrawPoint = artPt;
+        saveHistorySnapshot();
+        drawStrokeSegment(artPt, artPt);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (isPinching && e.touches.length === 2) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+
+        if (initialPinchDistance > 10) {
+          const factor = currentDist / initialPinchDistance;
+          const targetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, initialScale * factor));
+          
+          const midX = (t1.clientX + t2.clientX) / 2;
+          const midY = (t1.clientY + t2.clientY) / 2;
+          const vpRect = viewport.getBoundingClientRect();
+          const currentCenter = {
+            x: midX - vpRect.left - (vpRect.width / 2),
+            y: midY - vpRect.top - (vpRect.height / 2)
+          };
+
+          scale = targetScale;
+          panX = initialPanX + (currentCenter.x - pinchCenter.x);
+          panY = initialPanY + (currentCenter.y - pinchCenter.y);
+          updateStageTransform();
+        }
+        e.preventDefault();
+        return;
+      }
+
+      if (isDrawing && e.touches.length === 1 && !isPinching) {
+        const touch = e.touches[0];
+        const artPt = getArtCoordinates(touch.clientX, touch.clientY);
+        if (lastDrawPoint) {
+          drawStrokeSegment(lastDrawPoint, artPt);
+        }
+        lastDrawPoint = artPt;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) isPinching = false;
+      if (e.touches.length === 0) {
+        isDrawing = false;
+        lastDrawPoint = null;
+      }
+    });
+
+    viewport.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      const artPt = getArtCoordinates(e.clientX, e.clientY);
+
+      if (currentTool === 'fill') {
+        performFloodFill(artPt.x, artPt.y);
+        return;
+      }
+
+      isDrawing = true;
+      lastDrawPoint = artPt;
+      saveHistorySnapshot();
+      drawStrokeSegment(artPt, artPt);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDrawing || !lastDrawPoint) return;
+      const artPt = getArtCoordinates(e.clientX, e.clientY);
+      drawStrokeSegment(lastDrawPoint, artPt);
+      lastDrawPoint = artPt;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDrawing) {
+        isDrawing = false;
+        lastDrawPoint = null;
+      }
+    });
+
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomDelta = e.deltaY < 0 ? 0.2 : -0.2;
+      scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + zoomDelta));
+      updateStageTransform();
+    }, { passive: false });
+
+    document.getElementById('btn-zoom-in').onclick = () => {
+      scale = Math.min(MAX_SCALE, scale + 0.3);
+      playSound('tap');
+      updateStageTransform();
+    };
+
+    document.getElementById('btn-zoom-out').onclick = () => {
+      scale = Math.max(MIN_SCALE, scale - 0.3);
+      playSound('tap');
+      updateStageTransform();
+    };
+
+    document.getElementById('btn-zoom-reset').onclick = () => {
+      playSound('tap');
+      resetZoom();
+    };
+
+    const CANDY_PALETTE = [
+      '#FF2D87', '#FF4F9A', '#FF7167', '#FF9F43', 
+      '#FFD93D', '#FFF066', '#7DE7AD', '#43AA8B',
+      '#32D6CC', '#55B8FF', '#3A86FF', '#8338EC',
+      '#A98BFF', '#DDA0DD', '#FFAFCC', '#FFC8DD',
+      '#FFE5D9', '#D8E2DC', '#C8B6FF', '#B8C0FF',
+      '#BEE1E6', '#F0E6EF', '#DDBEA9', '#CB997E',
+      '#A68A68', '#6B705C', '#FFFFFF', '#221824'
+    ];
+
+    function renderPaletteSwatches() {
+      const container = document.getElementById('palette-swatches');
+      if (!container) return;
+      container.innerHTML = '';
+
+      CANDY_PALETTE.forEach(color => {
+        const swatch = document.createElement('button');
+        swatch.className = 'chunky-swatch';
+        swatch.style.backgroundColor = color;
+        if (color === currentColor) {
+          swatch.classList.add('active-swatch');
+        }
+
+        const gloss = document.createElement('div');
+        gloss.className = 'chunky-swatch-highlight';
+        swatch.appendChild(gloss);
+
+        swatch.onclick = () => {
+          selectColor(color);
+          playSound('tap');
+        };
+        container.appendChild(swatch);
+      });
+    }
+
+    function selectColor(color) {
+      currentColor = color;
+      const swatchIndicator = document.getElementById('active-color-swatch');
+      if (swatchIndicator) {
+        swatchIndicator.style.backgroundColor = color;
+      }
+      const picker = document.getElementById('custom-color-picker');
+      if (picker) {
+        picker.value = color;
+      }
+      renderPaletteSwatches();
+    }
+
+    document.getElementById('custom-color-picker').addEventListener('input', (e) => {
+      selectColor(e.target.value);
+    });
+
+    // Pouch Tool Selection: Pops up cleanly out of the sleeve
+    document.querySelectorAll('.pouch-tool-item').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.pouch-tool-item').forEach(b => {
+          b.classList.remove('active-tool');
+        });
+        btn.classList.add('active-tool');
+        currentTool = btn.getAttribute('data-tool');
+        playSound('tap');
+      };
+    });
+
+    // Nib Size Selection
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.size-btn').forEach(b => {
+          b.classList.remove('bg-candy-pink/20', 'shadow-xs', 'border', 'border-candy-hotpink/30');
+          b.classList.add('hover:bg-candy-cream');
+          const circle = b.querySelector('div');
+          if (circle) circle.className = circle.className.replace('bg-candy-hotpink', 'bg-candy-plum');
+        });
+        btn.classList.add('bg-candy-pink/20', 'shadow-xs', 'border', 'border-candy-hotpink/30');
+        btn.classList.remove('hover:bg-candy-cream');
+        const c = btn.querySelector('div');
+        if (c) c.className = c.className.replace('bg-candy-plum', 'bg-candy-hotpink');
+        currentStrokeSize = parseInt(btn.getAttribute('data-size'), 10);
+        playSound('tap');
+      };
+    });
+
+    document.getElementById('btn-undo').onclick = () => {
+      if (undoStack.length === 0) return;
+      const currentSnap = colorCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      redoStack.push(currentSnap);
+      const prevSnap = undoStack.pop();
+      colorCtx.putImageData(prevSnap, 0, 0);
+      updateUndoRedoButtons();
+      playSound('tap');
+    };
+
+    document.getElementById('btn-redo').onclick = () => {
+      if (redoStack.length === 0) return;
+      const currentSnap = colorCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      undoStack.push(currentSnap);
+      const nextSnap = redoStack.pop();
+      colorCtx.putImageData(nextSnap, 0, 0);
+      updateUndoRedoButtons();
+      playSound('tap');
+    };
+
+    document.getElementById('btn-clear-canvas').onclick = () => {
+      showModal({
+        title: t('confirm_clear_title'),
+        message: t('confirm_clear_msg'),
+        confirmText: t('btn_confirm_clear'),
+        cancelText: t('btn_cancel'),
+        onConfirm: () => {
+          saveHistorySnapshot();
+          colorCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          showToast(t('toast_cleared'));
+        }
+      });
+    };
+
+    async function openColoringPage(page) {
+      currentActivePage = page;
+      playSound('tap');
+
+      document.getElementById('workspace-art-title').textContent = currentLang === 'ms' ? page.titleBM : page.titleEN;
+      const themeObj = THEMES.find(t => t.id === page.themeId);
+      document.getElementById('workspace-art-theme').textContent = themeObj ? (currentLang === 'ms' ? themeObj.nameBM : themeObj.nameEN) : '';
+
+      undoStack = [];
+      redoStack = [];
+      updateUndoRedoButtons();
+      resetZoom();
+
+      const spinner = document.getElementById('canvas-loading-spinner');
+      if (spinner) spinner.classList.remove('hidden');
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      const setupImageCanvas = (loadedImg) => {
+        const naturalW = loadedImg.naturalWidth || 1200;
+        const naturalH = loadedImg.naturalHeight || 1500;
+        const aspect = naturalW / naturalH;
+
+        if (aspect >= 1) {
+          CANVAS_WIDTH = 1400;
+          CANVAS_HEIGHT = Math.round(1400 / aspect);
+        } else {
+          CANVAS_HEIGHT = 1500;
+          CANVAS_WIDTH = Math.round(1500 * aspect);
+        }
+
+        lineArtCanvas.width = CANVAS_WIDTH;
+        lineArtCanvas.height = CANVAS_HEIGHT;
+        colorCanvas.width = CANVAS_WIDTH;
+        colorCanvas.height = CANVAS_HEIGHT;
+
+        lineArtCtx.fillStyle = '#FFFFFF';
+        lineArtCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        lineArtCtx.drawImage(loadedImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        if (spinner) spinner.classList.add('hidden');
+
+        getArtworkFromDB(page.id).then(savedRecord => {
+          if (savedRecord && savedRecord.colorDataURL) {
+            const cImg = new Image();
+            cImg.onload = () => colorCtx.drawImage(cImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            cImg.src = savedRecord.colorDataURL;
+          }
+        }).catch(err => console.warn('Saved artwork lookup notice:', err));
+
+        resizeCanvasViewport();
+      };
+
+      img.onload = () => setupImageCanvas(img);
+      img.onerror = () => {
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => setupImageCanvas(fallbackImg);
+        fallbackImg.onerror = () => {
+          if (spinner) spinner.classList.add('hidden');
+          lineArtCanvas.width = 1200;
+          lineArtCanvas.height = 1500;
+          colorCanvas.width = 1200;
+          colorCanvas.height = 1500;
+          lineArtCtx.fillStyle = '#FFFFFF';
+          lineArtCtx.fillRect(0, 0, 1200, 1500);
+          lineArtCtx.lineWidth = 14;
+          lineArtCtx.strokeStyle = '#493451';
+          lineArtCtx.strokeRect(60, 60, 1080, 1380);
+          lineArtCtx.beginPath();
+          lineArtCtx.arc(600, 700, 320, 0, Math.PI * 2);
+          lineArtCtx.stroke();
+          resizeCanvasViewport();
+        };
+        fallbackImg.src = page.imageSrc;
+      };
+      img.src = page.imageSrc;
+
+      document.getElementById('screen-home').classList.add('hidden');
+      document.getElementById('screen-theme-pages').classList.add('hidden');
+      document.getElementById('screen-collection').classList.add('hidden');
+      document.getElementById('screen-workspace').classList.remove('hidden');
+
+      setTimeout(resizeCanvasViewport, 80);
+    }
+
+    async function saveCurrentArtwork() {
+      if (!currentActivePage) return;
+      try {
+        const colorDataURL = colorCanvas.toDataURL('image/png');
+
+        const thumbCanvas = document.createElement('canvas');
+        const aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
+        thumbCanvas.width = 300;
+        thumbCanvas.height = Math.round(300 / aspect);
+        const tCtx = thumbCanvas.getContext('2d');
+        tCtx.fillStyle = '#FFFFFF';
+        tCtx.fillRect(0, 0, thumbCanvas.width, thumbCanvas.height);
+        tCtx.drawImage(colorCanvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+        try {
+          tCtx.globalCompositeOperation = 'multiply';
+          tCtx.drawImage(lineArtCanvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+        } catch (e) {
+          console.warn('Line art blend skipped for thumbnail:', e);
+        }
+        const thumbDataURL = thumbCanvas.toDataURL('image/png', 0.85);
+
+        const record = {
+          id: currentActivePage.id,
+          themeId: currentActivePage.themeId,
+          titleBM: currentActivePage.titleBM,
+          titleEN: currentActivePage.titleEN,
+          imageSrc: currentActivePage.imageSrc,
+          savedAt: new Date().toISOString(),
+          colorDataURL: colorDataURL,
+          thumbnailDataURL: thumbDataURL
+        };
+
+        await saveArtworkToDB(record);
+        playSound('save');
+        showToast(t('toast_saved'));
+        updateCollectionCountBadge();
+      } catch (err) {
+        console.error('Failed to save artwork:', err);
+      }
+    }
+
+    document.getElementById('btn-save-artwork').onclick = saveCurrentArtwork;
+
+    let currentExportBlob = null;
+    let currentExportBlobUrl = null;
+    let currentExportFilename = '';
+
+    function openExportModal(blobUrl) {
+      const modal = document.getElementById('export-preview-modal');
+      const img = document.getElementById('export-preview-img');
+      if (modal && img) {
+        img.src = blobUrl;
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeExportModal() {
+      const modal = document.getElementById('export-preview-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    const btnCloseModalX = document.getElementById('btn-close-export-modal');
+    if (btnCloseModalX) btnCloseModalX.onclick = closeExportModal;
+
+    const btnCloseModalBtn = document.getElementById('btn-export-close');
+    if (btnCloseModalBtn) btnCloseModalBtn.onclick = closeExportModal;
+
+    const btnDirectDl = document.getElementById('btn-export-direct-dl');
+    if (btnDirectDl) {
+      btnDirectDl.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!currentExportBlobUrl) return;
+        const link = document.createElement('a');
+        link.download = currentExportFilename;
+        link.href = currentExportBlobUrl;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (link.parentNode) link.parentNode.removeChild(link);
+        }, 500);
+        showToast(t('toast_exported'));
+      };
+    }
+
+    async function generatePdfFromCanvasPure(canvas) {
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const binStr = atob(dataUrl.split(',')[1]);
+      const jpegLen = binStr.length;
+      const jpegBytes = new Uint8Array(jpegLen);
+      for (let i = 0; i < jpegLen; i++) {
+        jpegBytes[i] = binStr.charCodeAt(i);
+      }
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const ptW = Math.round(w * 0.72);
+      const ptH = Math.round(h * 0.72);
+
+      const enc = new TextEncoder();
+      const header = '%PDF-1.4\n';
+      const obj1 = '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+      const obj2 = '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+      const obj3 = `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${ptW} ${ptH}] /Contents 4 0 R /Resources << /XObject << /Im0 5 0 R >> >> >>\nendobj\n`;
+      const streamContent = `q ${ptW} 0 0 ${ptH} 0 0 cm /Im0 Do Q`;
+      const obj4 = `4 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}\nendstream\nendobj\n`;
+      const obj5Head = `5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegLen} >>\nstream\n`;
+      const obj5Tail = '\nendstream\nendobj\n';
+
+      const bHeader = enc.encode(header);
+      const bObj1 = enc.encode(obj1);
+      const bObj2 = enc.encode(obj2);
+      const bObj3 = enc.encode(obj3);
+      const bObj4 = enc.encode(obj4);
+      const bObj5Head = enc.encode(obj5Head);
+      const bObj5Tail = enc.encode(obj5Tail);
+
+      const offset1 = bHeader.length;
+      const offset2 = offset1 + bObj1.length;
+      const offset3 = offset2 + bObj2.length;
+      const offset4 = offset3 + bObj3.length;
+      const offset5 = offset4 + bObj4.length;
+      const offsetAfter5 = offset5 + bObj5Head.length + jpegLen + bObj5Tail.length;
+
+      const pad = (n) => String(n).padStart(10, '0');
+      const xref = `xref\n0 6\n0000000000 65535 f \n${pad(offset1)} 00000 n \n${pad(offset2)} 00000 n \n${pad(offset3)} 00000 n \n${pad(offset4)} 00000 n \n${pad(offset5)} 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${offsetAfter5}\n%%EOF\n`;
+      const bXref = enc.encode(xref);
+
+      const totalLen = offsetAfter5 + bXref.length;
+      const pdfBytes = new Uint8Array(totalLen);
+      let p = 0;
+      pdfBytes.set(bHeader, p); p += bHeader.length;
+      pdfBytes.set(bObj1, p); p += bObj1.length;
+      pdfBytes.set(bObj2, p); p += bObj2.length;
+      pdfBytes.set(bObj3, p); p += bObj3.length;
+      pdfBytes.set(bObj4, p); p += bObj4.length;
+      pdfBytes.set(bObj5Head, p); p += bObj5Head.length;
+      pdfBytes.set(jpegBytes, p); p += jpegLen;
+      pdfBytes.set(bObj5Tail, p); p += bObj5Tail.length;
+      pdfBytes.set(bXref, p);
+
+      return new Blob([pdfBytes], { type: 'application/pdf' });
+    }
+
+    async function generatePdfBlob(canvas) {
+      try {
+        if (window.jspdf && window.jspdf.jsPDF) {
+          const { jsPDF } = window.jspdf;
+          const w = canvas.width;
+          const h = canvas.height;
+          const doc = new jsPDF({
+            orientation: w > h ? 'l' : 'p',
+            unit: 'pt',
+            format: [w * 0.72, h * 0.72]
+          });
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          doc.addImage(imgData, 'JPEG', 0, 0, w * 0.72, h * 0.72);
+          return doc.output('blob');
+        }
+      } catch (err) {
+        console.warn('jsPDF fallback:', err);
+      }
+      return generatePdfFromCanvasPure(canvas);
+    }
+
+    document.getElementById('btn-export-png').onclick = async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (!currentActivePage) return;
+
+      try {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = CANVAS_WIDTH;
+        exportCanvas.height = CANVAS_HEIGHT;
+        const eCtx = exportCanvas.getContext('2d');
+        eCtx.fillStyle = '#FFFFFF';
+        eCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        eCtx.drawImage(colorCanvas, 0, 0);
+        try {
+          eCtx.globalCompositeOperation = 'multiply';
+          eCtx.drawImage(lineArtCanvas, 0, 0);
+        } catch (err) {
+          console.warn('Line art blend skipped for export:', err);
+        }
+
+        const title = (currentLang === 'ms' ? currentActivePage.titleBM : currentActivePage.titleEN).replace(/\s+/g, '-');
+        currentExportFilename = `CosyColoring-${title}.pdf`;
+
+        const pdfBlob = await generatePdfBlob(exportCanvas);
+        if (!pdfBlob) return;
+        currentExportBlob = pdfBlob;
+
+        if (currentExportBlobUrl) {
+          URL.revokeObjectURL(currentExportBlobUrl);
+        }
+        currentExportBlobUrl = URL.createObjectURL(pdfBlob);
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || ('ontouchstart' in window);
+
+        if (isMobile && navigator.canShare && navigator.share) {
+          try {
+            const file = new File([pdfBlob], currentExportFilename, { type: 'application/pdf' });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: currentExportFilename
+              });
+              playSound('save');
+              showToast(t('toast_exported'));
+              return;
+            }
+          } catch (shareErr) {
+            if (shareErr.name === 'AbortError') {
+              return;
+            }
+            console.warn('Native share not used:', shareErr);
+          }
+        }
+
+        if (!isMobile) {
+          const link = document.createElement('a');
+          link.download = currentExportFilename;
+          link.href = currentExportBlobUrl;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => {
+            if (link.parentNode) link.parentNode.removeChild(link);
+          }, 500);
+          playSound('save');
+          showToast(t('toast_exported'));
+          return;
+        }
+
+        const previewImgData = exportCanvas.toDataURL('image/jpeg', 0.9);
+        openExportModal(previewImgData);
+        playSound('save');
+      } catch (err) {
+        console.error('Export failed:', err);
+      }
+    };
+
+    async function updateCollectionCountBadge() {
+      try {
+        const all = await getAllArtworksFromDB();
+        const badge = document.getElementById('saved-count-badge');
+        if (badge) badge.textContent = all.length;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    async function renderCollectionScreen() {
+      const grid = document.getElementById('collection-grid');
+      const emptyState = document.getElementById('collection-empty');
+      grid.innerHTML = '';
+
+      const artworks = await getAllArtworksFromDB();
+
+      if (artworks.length === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+
+      artworks.forEach(art => {
+        const card = document.createElement('div');
+        card.className = 'candy-btn bg-white rounded-3xl p-2.5 border-2 border-candy-sand shadow-chibi hover:shadow-chibi-hover flex flex-col items-center relative group';
+        const title = currentLang === 'ms' ? art.titleBM : art.titleEN;
+
+        card.innerHTML = `
+          <div class="w-full aspect-[4/5] bg-[#FDFBF7] rounded-2xl overflow-hidden mb-2 relative border border-candy-sand flex items-center justify-center p-1.5">
+            <img src="${art.thumbnailDataURL || art.imageSrc}" alt="${title}" class="max-w-full max-h-full object-contain">
+            <button data-delete="${art.id}" class="candy-btn absolute top-1.5 right-1.5 w-7 h-7 bg-white/95 hover:bg-[#FFE2EC] text-candy-hotpink rounded-full flex items-center justify-center shadow-chibi-sm text-xs font-black transition-all border border-candy-pink/30" title="Padam">
+              ✕
+            </button>
+          </div>
+          <h4 class="font-display font-black text-xs text-candy-plum text-center truncate w-full px-1">
+            ${title}
+          </h4>
+          <span class="text-[9px] text-candy-softplum font-bold mt-0.5">
+            ${new Date(art.savedAt).toLocaleDateString()}
+          </span>
+        `;
+
+        card.onclick = (e) => {
+          if (e.target.closest('[data-delete]')) return;
+          const matchedPage = ASSET_REGISTRY.find(p => p.id === art.id) || {
+            id: art.id,
+            themeId: art.themeId,
+            titleBM: art.titleBM,
+            titleEN: art.titleEN,
+            imageSrc: art.imageSrc
+          };
+          openColoringPage(matchedPage);
+        };
+
+        const delBtn = card.querySelector('[data-delete]');
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          showModal({
+            title: t('confirm_delete_art_title'),
+            message: t('confirm_delete_art_msg'),
+            confirmText: t('btn_confirm_delete'),
+            cancelText: t('btn_cancel'),
+            onConfirm: async () => {
+              await deleteArtworkFromDB(art.id);
+              updateCollectionCountBadge();
+              renderCollectionScreen();
+            }
+          });
+        };
+
+        grid.appendChild(card);
+      });
+    }
+
+    function navigateToHome() {
+      playSound('tap');
+      document.getElementById('screen-workspace').classList.add('hidden');
+      document.getElementById('screen-collection').classList.add('hidden');
+      document.getElementById('screen-theme-pages').classList.add('hidden');
+      document.getElementById('screen-home').classList.remove('hidden');
+      updateCollectionCountBadge();
+      window.scrollTo(0, 0);
+    }
+
+    function navigateToCollection() {
+      playSound('tap');
+      document.getElementById('screen-home').classList.add('hidden');
+      document.getElementById('screen-theme-pages').classList.add('hidden');
+      document.getElementById('screen-workspace').classList.add('hidden');
+      document.getElementById('screen-collection').classList.remove('hidden');
+      renderCollectionScreen();
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('btn-nav-home').onclick = navigateToHome;
+    document.getElementById('logo-branding-btn').onclick = navigateToHome;
+    
+    document.getElementById('btn-workspace-back').onclick = () => {
+      playSound('tap');
+      if (currentSelectedThemeId) {
+        document.getElementById('screen-workspace').classList.add('hidden');
+        document.getElementById('screen-theme-pages').classList.remove('hidden');
+      } else {
+        navigateToHome();
+      }
+    };
+
+    document.getElementById('btn-back-to-themes').onclick = navigateToHome;
+    
+    document.getElementById('btn-quick-start').onclick = () => {
+      if (THEMES.length > 0) openThemePage(THEMES[0].id);
+    };
+
+    document.getElementById('btn-goto-collection').onclick = navigateToCollection;
+    document.getElementById('btn-back-from-collection').onclick = navigateToHome;
+    document.getElementById('btn-empty-start').onclick = navigateToHome;
+
+    document.getElementById('lang-bm').onclick = () => {
+      currentLang = 'ms';
+      localStorage.setItem('cosy_lang', 'ms');
+      playSound('tap');
+      updateLanguageUI();
+    };
+
+    document.getElementById('lang-en').onclick = () => {
+      currentLang = 'en';
+      localStorage.setItem('cosy_lang', 'en');
+      playSound('tap');
+      updateLanguageUI();
+    };
+
+    document.getElementById('btn-audio-toggle').onclick = () => {
+      audioEnabled = !audioEnabled;
+      localStorage.setItem('cosy_audio', audioEnabled);
+      document.getElementById('svg-audio-on').classList.toggle('hidden', !audioEnabled);
+      document.getElementById('svg-audio-off').classList.toggle('hidden', audioEnabled);
+      playSound('tap');
+    };
+
+    window.onload = () => {
+      document.getElementById('svg-audio-on').classList.toggle('hidden', !audioEnabled);
+      document.getElementById('svg-audio-off').classList.toggle('hidden', audioEnabled);
+      renderFrontPageThemes();
+      renderPaletteSwatches();
+      updateLanguageUI();
+      updateCollectionCountBadge();
+      resizeCanvasViewport();
+
+      // Lock bottom stationery pouch against any pinch, zoom or pan gestures
+      const pouchDock = document.querySelector('.stationery-pouch-dock');
+      if (pouchDock) {
+        pouchDock.addEventListener('touchmove', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }, { passive: false });
+        pouchDock.addEventListener('touchstart', (e) => {
+          if (e.touches.length > 1) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, { passive: false });
+        pouchDock.addEventListener('gesturestart', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      }
+    };
+  </script>
+</body>
+</html>
